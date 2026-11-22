@@ -1,10 +1,16 @@
 """AutoExpert — SQLAlchemy 2.0 Database Configuration."""
 
+import os
 from pathlib import Path
+import tempfile
 from sqlalchemy import create_engine
 from sqlalchemy.orm import declarative_base, sessionmaker
 
-DB_PATH = Path(__file__).resolve().parent.parent.parent / "autoexpert.db"
+if os.environ.get("VERCEL"):
+    DB_PATH = Path(tempfile.gettempdir()) / "autoexpert.db"
+else:
+    DB_PATH = Path(__file__).resolve().parent.parent.parent / "autoexpert.db"
+
 SQLALCHEMY_DATABASE_URL = f"sqlite:///{DB_PATH}"
 
 engine = create_engine(
