@@ -38,92 +38,95 @@ export default function Settings() {
   };
 
   return (
-    <div className="space-y-6 max-w-3xl mx-auto">
-      {/* Header */}
-      <div>
-        <h2 className="text-xl font-bold text-white flex items-center gap-2">
-          <SettingsIcon className="w-5 h-5 text-primary" />
-          <span>System Settings & Preferences</span>
+    <div className="space-y-6 max-w-3xl mx-auto font-mono">
+      {/* Tactical Header */}
+      <div className="border-b border-[#262626] pb-4">
+        <span className="text-[10px] text-[#E61919] uppercase tracking-widest block mb-1">
+          &lt; SYSTEM_CALIBRATION // HARDWARE_SPECS &gt;
+        </span>
+        <h2 className="text-xl font-black text-[#EAEAEA] uppercase tracking-tight font-mono flex items-center gap-2">
+          <SettingsIcon className="w-5 h-5 text-[#E61919]" />
+          <span>[ SYSTEM_PARAMETERS // OPERATIONAL_CALIBRATION ]</span>
         </h2>
-        <p className="text-xs text-slate-400 mt-0.5">
-          Configure diagnostic unit conventions, reasoning playback timing, and view system specifications.
+        <p className="text-xs text-neutral-400 mt-0.5 uppercase tracking-wide">
+          CALIBRATE TELEMETRY UNIT CONVENTIONS, PLAYBACK CHRONOMETRY &amp; HARDWARE CONSTRAINTS.
         </p>
       </div>
 
       {saved && (
-        <div className="p-3 bg-emerald-950/40 border border-emerald-500/40 rounded-xl flex items-center gap-2 text-xs text-emerald-300">
-          <CheckCircle className="w-4 h-4 text-emerald-400 shrink-0" />
-          <span>User preferences successfully saved to SQLite persistence.</span>
+        <div className="p-3 bg-black border border-[#4AF626] rounded-none flex items-center gap-2 text-xs text-[#4AF626] font-mono uppercase tracking-wider">
+          <CheckCircle className="w-4 h-4 text-[#4AF626] shrink-0" />
+          <span>[ SUCCESS: OPERATIONAL_PARAMETERS_COMMITTED_TO_SQLITE ]</span>
         </div>
       )}
 
-      <form onSubmit={handleSave} className="bg-card border border-border rounded-xl p-6 space-y-6 shadow-sm">
+      <form onSubmit={handleSave} className="bg-[#121212] border border-[#262626] rounded-none p-6 space-y-6 shadow-none font-mono">
         {/* Distance Unit */}
         <div>
-          <label className="text-xs font-bold text-slate-300 block mb-1">
-            Distance & Odometer Measurement Unit
+          <label className="text-[10px] font-black text-neutral-400 uppercase tracking-widest block mb-1.5">
+            // ODOMETER_DISTANCE_MEASUREMENT_UNIT:
           </label>
           <div className="grid grid-cols-2 gap-3 mt-1.5">
             <button
               type="button"
               onClick={() => setDistanceUnit('km')}
-              className={`p-3 rounded-lg text-xs font-bold border transition ${
+              className={`p-3 rounded-none text-xs font-mono font-bold uppercase tracking-wider border transition ${
                 distanceUnit === 'km'
-                  ? 'bg-primary/20 border-primary text-white'
-                  : 'bg-slate-900 border-slate-800 text-slate-400 hover:border-slate-700'
+                  ? 'bg-[#E61919] border-[#E61919] text-white'
+                  : 'bg-[#0A0A0A] border-[#333333] text-neutral-400 hover:border-neutral-500 hover:text-white'
               }`}
             >
-              Kilometers (km)
+              {distanceUnit === 'km' ? '[X]' : '[ ]'} KILOMETERS (KM)
             </button>
             <button
               type="button"
               onClick={() => setDistanceUnit('mi')}
-              className={`p-3 rounded-lg text-xs font-bold border transition ${
+              className={`p-3 rounded-none text-xs font-mono font-bold uppercase tracking-wider border transition ${
                 distanceUnit === 'mi'
-                  ? 'bg-primary/20 border-primary text-white'
-                  : 'bg-slate-900 border-slate-800 text-slate-400 hover:border-slate-700'
+                  ? 'bg-[#E61919] border-[#E61919] text-white'
+                  : 'bg-[#0A0A0A] border-[#333333] text-neutral-400 hover:border-neutral-500 hover:text-white'
               }`}
             >
-              Miles (mi)
+              {distanceUnit === 'mi' ? '[X]' : '[ ]'} MILES (MI)
             </button>
           </div>
         </div>
 
         {/* Pressure Unit */}
         <div>
-          <label className="text-xs font-bold text-slate-300 block mb-1">
-            Tyre & Hydraulic Pressure Unit
+          <label className="text-[10px] font-black text-neutral-400 uppercase tracking-widest block mb-1.5">
+            // HYDRAULIC_&amp;_TYRE_PRESSURE_UNIT:
           </label>
           <div className="grid grid-cols-2 gap-3 mt-1.5">
             <button
               type="button"
               onClick={() => setPressureUnit('psi')}
-              className={`p-3 rounded-lg text-xs font-bold border transition ${
+              className={`p-3 rounded-none text-xs font-mono font-bold uppercase tracking-wider border transition ${
                 pressureUnit === 'psi'
-                  ? 'bg-primary/20 border-primary text-white'
-                  : 'bg-slate-900 border-slate-800 text-slate-400 hover:border-slate-700'
+                  ? 'bg-[#E61919] border-[#E61919] text-white'
+                  : 'bg-[#0A0A0A] border-[#333333] text-neutral-400 hover:border-neutral-500 hover:text-white'
               }`}
             >
-              Pounds per Square Inch (PSI)
+              {pressureUnit === 'psi' ? '[X]' : '[ ]'} POUNDS_PER_SQ_INCH (PSI)
             </button>
             <button
               type="button"
               onClick={() => setPressureUnit('bar')}
-              className={`p-3 rounded-lg text-xs font-bold border transition ${
+              className={`p-3 rounded-none text-xs font-mono font-bold uppercase tracking-wider border transition ${
                 pressureUnit === 'bar'
-                  ? 'bg-primary/20 border-primary text-white'
-                  : 'bg-slate-900 border-slate-800 text-slate-400 hover:border-slate-700'
+                  ? 'bg-[#E61919] border-[#E61919] text-white'
+                  : 'bg-[#0A0A0A] border-[#333333] text-neutral-400 hover:border-neutral-500 hover:text-white'
               }`}
             >
-              Bar (metric bar)
+              {pressureUnit === 'bar' ? '[X]' : '[ ]'} BAR (METRIC_BAR)
             </button>
           </div>
         </div>
 
         {/* Playback speed */}
         <div>
-          <label className="text-xs font-bold text-slate-300 block mb-1">
-            Reasoning Playback Interval (Milliseconds per Step)
+          <label className="text-[10px] font-black text-neutral-400 uppercase tracking-widest block mb-1.5">
+            // TRACE_VIEWER_PLAYBACK_INTERVAL (MS_PER_STEP):
           </label>
           <input
             type="number"
@@ -132,41 +135,53 @@ export default function Settings() {
             step={100}
             value={playbackSpeed}
             onChange={(e) => setPlaybackSpeed(Number(e.target.value))}
-            className="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-xs text-white"
+            className="w-full bg-[#0A0A0A] border border-[#333333] rounded-none p-2.5 text-xs text-[#EAEAEA] font-mono uppercase focus:border-[#E61919] focus:outline-none"
           />
-          <span className="text-[11px] text-slate-400 mt-1 block">
-            Controls the automatic step delay during TraceViewer playback (default: 600ms).
+          <span className="text-[10px] text-neutral-500 mt-1 block uppercase">
+            // CONTROLS AUTOMATIC STEPPING INTERVAL IN TRACE_VIEWER FLIGHT RECORDER (DEFAULT: 600MS).
           </span>
         </div>
 
         {/* Submit */}
-        <div className="pt-4 border-t border-slate-800 flex justify-end">
+        <div className="pt-4 border-t border-[#262626] flex justify-end">
           <button
             type="submit"
-            className="px-5 py-2.5 bg-primary hover:bg-primary-hover text-white text-xs font-bold rounded-lg shadow flex items-center gap-2 transition"
+            className="px-5 py-2.5 bg-[#E61919] hover:bg-[#FF2A2A] text-white text-xs font-mono font-bold uppercase tracking-wider rounded-none border border-[#E61919] flex items-center gap-2 transition"
           >
             <Save className="w-4 h-4" />
-            <span>Save Preferences</span>
+            <span>[ COMMIT_PREFERENCES ]</span>
           </button>
         </div>
       </form>
 
       {/* System Specifications Card */}
-      <div className="bg-card border border-border rounded-xl p-6 space-y-3">
-        <h3 className="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
-          <Info className="w-4 h-4 text-primary" />
-          <span>Academic System Architecture Notes</span>
+      <div className="bg-[#121212] border border-[#262626] rounded-none p-6 space-y-3 font-mono">
+        <h3 className="text-xs font-black text-neutral-300 uppercase tracking-widest flex items-center gap-2 border-b border-[#262626] pb-2">
+          <Info className="w-4 h-4 text-[#E61919]" />
+          <span>[ HARDWARE &amp; ENGINE SPECIFICATIONS ]</span>
         </h3>
-        <div className="text-xs text-slate-400 space-y-2 leading-relaxed">
-          <p>
-            AutoExpert is an installable pure symbolic expert system. It does not utilize any external LLM APIs, probabilistic models, or hardcoded result pages.
+        <div className="text-xs text-neutral-400 space-y-2 leading-relaxed">
+          <p className="uppercase text-[11px]">
+            AUTOEXPERT IS AN INSTALLABLE PURE SYMBOLIC EXPERT SYSTEM. ZERO LLM APIS, PROBABILISTIC HALLUCINATIONS, OR HEURISTIC BYPASSES.
           </p>
-          <ul className="list-disc pl-5 space-y-1 text-slate-300">
-            <li><strong>Engine:</strong> <code className="text-primary font-mono">autoexpert_engine</code> (Shared pip-installable package)</li>
-            <li><strong>Working Memory:</strong> 3-Valued Logic (<code className="text-emerald-400 font-mono">TRUE</code>, <code className="text-red-400 font-mono">FALSE</code>, <code className="text-amber-400 font-mono">UNKNOWN</code>)</li>
-            <li><strong>Conflict Resolution:</strong> Refraction &rarr; Safety &rarr; Specificity &rarr; Priority &rarr; Rule ID</li>
-            <li><strong>Database:</strong> SQLite + SQLAlchemy 2.0 ORM with immutable report persistence</li>
-          </ul>
+          <div className="space-y-1 text-neutral-300 pt-1 text-xs">
+            <div>
+              <span className="text-[#E61919] font-bold">&gt;&gt;&gt;</span> <strong>ENGINE:</strong>{' '}
+              <span className="text-[#EAEAEA]">autoexpert_engine v1.0 [DETERMINISTIC SYMBOLIC EXPERT SYSTEM]</span>
+            </div>
+            <div>
+              <span className="text-[#E61919] font-bold">&gt;&gt;&gt;</span> <strong>WORKING_MEMORY:</strong>{' '}
+              <span className="text-[#4AF626]">3-VALUED LOGIC (TRUE, FALSE, UNKNOWN)</span>
+            </div>
+            <div>
+              <span className="text-[#E61919] font-bold">&gt;&gt;&gt;</span> <strong>CONFLICT_RESOLUTION:</strong>{' '}
+              <span className="text-[#EAEAEA]">REFRACTION &gt;&gt; SAFETY &gt;&gt; SPECIFICITY &gt;&gt; PRIORITY &gt;&gt; RULE_ID</span>
+            </div>
+            <div>
+              <span className="text-[#E61919] font-bold">&gt;&gt;&gt;</span> <strong>PERSISTENCE_LAYER:</strong>{' '}
+              <span className="text-[#EAEAEA]">SQLITE 3 + SQLALCHEMY 2.0 ORM (IMMUTABLE AUDITS)</span>
+            </div>
+          </div>
         </div>
       </div>
     </div>
