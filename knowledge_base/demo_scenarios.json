@@ -1,0 +1,242 @@
+[
+  {
+    "scenario_id": "SCENARIO_01_MOTO_BATTERY",
+    "title": "Motorcycle Weak Battery Cranking Failure",
+    "category": "electrical",
+    "vehicle_profile": {
+      "vehicle_type": "motorcycle",
+      "manufacturer": "Yamaha",
+      "model": "MT-07",
+      "year": 2022,
+      "fuel_type": "petrol",
+      "cooling_type": "liquid_cooled",
+      "displacement_cc": 689,
+      "transmission": "manual"
+    },
+    "initial_facts": {
+      "engine_starts": false,
+      "starter_clicks": true,
+      "headlights_dim": true
+    },
+    "expected_triggered_rules": ["MOTO_ELEC_001"],
+    "expected_conclusions": ["FAULT_WEAK_BATTERY"],
+    "expected_safety_escalation": false,
+    "description": "Rider attempts to start the bike on a cold morning. Starter solenoid clicks rapidly and the headlight dims, indicating depleted battery charge."
+  },
+  {
+    "scenario_id": "SCENARIO_02_CAR_OVERHEAT",
+    "title": "Car Overheating with Radiator Fan Inoperative",
+    "category": "cooling_lubrication",
+    "vehicle_profile": {
+      "vehicle_type": "car",
+      "manufacturer": "Honda",
+      "model": "Civic",
+      "year": 2019,
+      "fuel_type": "petrol",
+      "cooling_type": "liquid_cooled",
+      "displacement_cc": 1996,
+      "transmission": "automatic"
+    },
+    "initial_facts": {
+      "engine_overheating_in_traffic_only": true,
+      "radiator_fan_runs": false
+    },
+    "expected_triggered_rules": ["CAR_COOL_004"],
+    "expected_conclusions": ["FAULT_RADIATOR_FAN_FAILURE"],
+    "expected_safety_escalation": false,
+    "description": "Vehicle temperature rises into the red zone when stopped in dense traffic, but cools down on the highway. Radiator fan fails to activate."
+  },
+  {
+    "scenario_id": "SCENARIO_03_AIR_FILTER",
+    "title": "Restricted Air Intake Filter & Black Smoke",
+    "category": "engine",
+    "vehicle_profile": {
+      "vehicle_type": "motorcycle",
+      "manufacturer": "Royal Enfield",
+      "model": "Himalayan",
+      "year": 2021,
+      "fuel_type": "petrol",
+      "cooling_type": "air_cooled",
+      "displacement_cc": 411,
+      "transmission": "manual"
+    },
+    "initial_facts": {
+      "reduced_engine_power": true,
+      "black_smoke_exhaust": true,
+      "air_filter_dirty": true
+    },
+    "expected_triggered_rules": ["MOTO_ENG_002"],
+    "expected_conclusions": ["FAULT_RESTRICTED_AIR_FILTER"],
+    "expected_safety_escalation": false,
+    "description": "After riding on dusty dirt trails, the motorcycle loses top-end power and puffs black smoke under heavy throttle due to a clogged air filter."
+  },
+  {
+    "scenario_id": "SCENARIO_04_CLUTCH_SLIP",
+    "title": "Motorcycle Drivetrain Clutch Slipping (Multi-Hop)",
+    "category": "transmission",
+    "vehicle_profile": {
+      "vehicle_type": "motorcycle",
+      "manufacturer": "Kawasaki",
+      "model": "Ninja 400",
+      "year": 2020,
+      "fuel_type": "petrol",
+      "cooling_type": "liquid_cooled",
+      "displacement_cc": 399,
+      "transmission": "manual"
+    },
+    "initial_facts": {
+      "rpm_rises_without_speed": true,
+      "clutch_slipping": true,
+      "clutch_cable_freeplay_low": true
+    },
+    "expected_triggered_rules": ["MOTO_TRANS_001", "MOTO_TRANS_002"],
+    "expected_conclusions": ["FAULT_CLUTCH_CABLE_MISADJUSTED"],
+    "expected_safety_escalation": false,
+    "description": "Demonstrates multi-hop inference: Rule MOTO_TRANS_001 derives drivetrain_slip_detected, which then fires Rule MOTO_TRANS_002 identifying tight clutch cable."
+  },
+  {
+    "scenario_id": "SCENARIO_05_WORN_BRAKES",
+    "title": "Severely Worn Brake Pads (Critical Safety Escalation)",
+    "category": "brakes",
+    "vehicle_profile": {
+      "vehicle_type": "car",
+      "manufacturer": "Toyota",
+      "model": "Corolla",
+      "year": 2018,
+      "fuel_type": "petrol",
+      "cooling_type": "liquid_cooled",
+      "displacement_cc": 1798,
+      "transmission": "automatic"
+    },
+    "initial_facts": {
+      "brake_pad_thickness_mm": 1.5,
+      "brake_grinding_noise": true
+    },
+    "expected_triggered_rules": ["CAR_BRAKE_001"],
+    "expected_conclusions": ["FAULT_CAR_BRAKE_PADS_CRITICAL"],
+    "expected_safety_escalation": true,
+    "description": "Loud metallic grinding on brake pedal application. Pad thickness is measured at 1.5mm. Triggers immediate safety halt and escalation."
+  },
+  {
+    "scenario_id": "SCENARIO_06_CHARGING_STATOR",
+    "title": "Stator & Rectifier Charging Failure (Multi-Hop 3-Pass)",
+    "category": "electrical",
+    "vehicle_profile": {
+      "vehicle_type": "motorcycle",
+      "manufacturer": "Suzuki",
+      "model": "SV650",
+      "year": 2017,
+      "fuel_type": "petrol",
+      "cooling_type": "liquid_cooled",
+      "displacement_cc": 645,
+      "transmission": "manual"
+    },
+    "initial_facts": {
+      "engine_starts": false,
+      "starter_clicks": true,
+      "headlights_dim": true,
+      "battery_recharged_recently": true,
+      "stator_ac_voltage_low": true
+    },
+    "expected_triggered_rules": ["MOTO_ELEC_001", "MOTO_ELEC_002", "MOTO_ELEC_003"],
+    "expected_conclusions": ["FAULT_WEAK_BATTERY", "FAULT_STATOR_REGULATOR_FAILURE"],
+    "expected_safety_escalation": false,
+    "description": "Demonstrates 3-pass multi-hop inference: Rule 1 derives power_supply_insufficient; Rule 2 derives charging_system_suspect; Rule 3 concludes stator breakdown."
+  },
+  {
+    "scenario_id": "SCENARIO_07_FUEL_FILTER_STALL",
+    "title": "Fuel Delivery Restriction & Clogged Fuel Filter",
+    "category": "fuel_system",
+    "vehicle_profile": {
+      "vehicle_type": "car",
+      "manufacturer": "Volkswagen",
+      "model": "Golf",
+      "year": 2016,
+      "fuel_type": "petrol",
+      "cooling_type": "liquid_cooled",
+      "displacement_cc": 1395,
+      "transmission": "automatic"
+    },
+    "initial_facts": {
+      "engine_stalls_at_idle": true,
+      "fuel_pressure_low": true,
+      "fuel_filter_clogged": true
+    },
+    "expected_triggered_rules": ["CAR_FUEL_001", "CAR_FUEL_002"],
+    "expected_conclusions": ["FAULT_CLOGGED_FUEL_FILTER"],
+    "expected_safety_escalation": false,
+    "description": "Engine sputters and stalls at stoplights. Fuel rail pressure is low, and filter inspection confirms sediment blockage."
+  },
+  {
+    "scenario_id": "SCENARIO_08_TYRE_MISALIGNMENT",
+    "title": "Highway Steering Shimmy & Wheel Misalignment",
+    "category": "suspension_tyres",
+    "vehicle_profile": {
+      "vehicle_type": "car",
+      "manufacturer": "Ford",
+      "model": "Focus",
+      "year": 2020,
+      "fuel_type": "petrol",
+      "cooling_type": "liquid_cooled",
+      "displacement_cc": 1497,
+      "transmission": "automatic"
+    },
+    "initial_facts": {
+      "steering_vibration_at_speed": true,
+      "tyre_wear_uneven": true,
+      "vehicle_pulls_left_or_right": true
+    },
+    "expected_triggered_rules": ["CAR_SUSP_001", "CAR_SUSP_003"],
+    "expected_conclusions": ["FAULT_WHEEL_MISALIGNMENT"],
+    "expected_safety_escalation": false,
+    "description": "Steering wheel vibrates at 90 km/h and car pulls continuously to the left with inner tread shoulder scrubbing."
+  },
+  {
+    "scenario_id": "SCENARIO_09_OIL_PRESSURE_LEAK",
+    "title": "Engine Oil Sump Leak & Red Oil Warning (Critical Safety)",
+    "category": "cooling_lubrication",
+    "vehicle_profile": {
+      "vehicle_type": "car",
+      "manufacturer": "BMW",
+      "model": "320i",
+      "year": 2018,
+      "fuel_type": "petrol",
+      "cooling_type": "liquid_cooled",
+      "displacement_cc": 1998,
+      "transmission": "automatic"
+    },
+    "initial_facts": {
+      "oil_pressure_warning_light": true,
+      "engine_oil_level_low": true,
+      "visible_oil_leak": true
+    },
+    "expected_triggered_rules": ["CAR_LUBR_001", "CAR_LUBR_002"],
+    "expected_conclusions": ["FAULT_CRITICAL_LOW_OIL_PRESSURE", "FAULT_MAJOR_OIL_PAN_LEAK"],
+    "expected_safety_escalation": true,
+    "description": "Red oil can light illuminates on instrument cluster, dipstick reads empty, and fresh oil puddle forms under engine sump."
+  },
+  {
+    "scenario_id": "SCENARIO_10_ENGINE_MOUNTS",
+    "title": "Severe Idle Vibration from Torn Engine Mounts",
+    "category": "engine",
+    "vehicle_profile": {
+      "vehicle_type": "car",
+      "manufacturer": "Mazda",
+      "model": "3",
+      "year": 2017,
+      "fuel_type": "petrol",
+      "cooling_type": "liquid_cooled",
+      "displacement_cc": 1998,
+      "transmission": "automatic"
+    },
+    "initial_facts": {
+      "excessive_engine_vibration": true,
+      "vibration_at_idle": true,
+      "engine_mount_cracked": true
+    },
+    "expected_triggered_rules": ["CAR_ENG_001", "CAR_ENG_002"],
+    "expected_conclusions": ["FAULT_WORN_ENGINE_MOUNTS"],
+    "expected_safety_escalation": false,
+    "description": "Driver feels harsh shaking through steering wheel and floorboards while waiting in drive at traffic lights, caused by ruptured hydraulic engine mount."
+  }
+]

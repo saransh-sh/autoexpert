@@ -1,0 +1,535 @@
+[
+  {
+    "rule_id": "CAR_COOL_001",
+    "name": "Car Engine Overheating Coolant Loss Detected",
+    "category": "cooling_lubrication",
+    "vehicle_applicability": {
+      "vehicle_types": ["car"],
+      "cooling_types": ["liquid_cooled"],
+      "fuel_types": ["petrol", "diesel", "hybrid"]
+    },
+    "conditions": [
+      { "fact": "engine_overheating", "operator": "==", "value": true },
+      { "fact": "coolant_level_low", "operator": "==", "value": true }
+    ],
+    "derived_facts": [
+      { "fact": "coolant_loss_detected", "value": true }
+    ],
+    "conclusion": null,
+    "severity": "high",
+    "safety_critical": false,
+    "priority": 85,
+    "explanation_template": "Engine temperature gauge is elevated and coolant level in the expansion tank is below minimum, confirming active coolant loss.",
+    "recommended_action": "Do not open radiator cap while hot. Allow engine to cool and inspect for external or internal leaks.",
+    "preventive_maintenance": "Check coolant expansion tank level weekly before starting vehicle."
+  },
+  {
+    "rule_id": "CAR_COOL_002",
+    "name": "Car Radiator Hose Rupture",
+    "category": "cooling_lubrication",
+    "vehicle_applicability": {
+      "vehicle_types": ["car"],
+      "cooling_types": ["liquid_cooled"],
+      "fuel_types": ["petrol", "diesel", "hybrid"]
+    },
+    "conditions": [
+      { "fact": "coolant_loss_detected", "operator": "==", "value": true },
+      { "fact": "radiator_hose_leak", "operator": "==", "value": true }
+    ],
+    "derived_facts": [],
+    "conclusion": {
+      "fault_id": "FAULT_RADIATOR_HOSE_PUNCTURE",
+      "title": "Perforated or Split Radiator Coolant Hose",
+      "is_final_diagnosis": true
+    },
+    "severity": "high",
+    "safety_critical": false,
+    "priority": 88,
+    "explanation_template": "Coolant loss traced to a split, ballooned, or clamped radiator hose venting pressurized coolant.",
+    "recommended_action": "Replace upper/lower radiator hose and hose clamps. Refill cooling system and perform air bleeding.",
+    "preventive_maintenance": "Squeeze radiator hoses when cold; replace if soft, spongy, or cracked (typically every 60,000 km)."
+  },
+  {
+    "rule_id": "CAR_COOL_003",
+    "name": "Car Blown Cylinder Head Gasket",
+    "category": "cooling_lubrication",
+    "vehicle_applicability": {
+      "vehicle_types": ["car"],
+      "cooling_types": ["liquid_cooled"],
+      "fuel_types": ["petrol", "diesel", "hybrid"]
+    },
+    "conditions": [
+      { "fact": "coolant_loss_detected", "operator": "==", "value": true },
+      { "fact": "white_exhaust_smoke", "operator": "==", "value": true },
+      { "fact": "oil_milky_color", "operator": "==", "value": true }
+    ],
+    "derived_facts": [
+      { "fact": "engine_temperature_critical", "value": true }
+    ],
+    "conclusion": {
+      "fault_id": "FAULT_BLOWN_HEAD_GASKET",
+      "title": "Blown Cylinder Head Gasket & Coolant-Oil Cross Contamination",
+      "is_final_diagnosis": true
+    },
+    "severity": "critical",
+    "safety_critical": true,
+    "priority": 99,
+    "explanation_template": "Coolant is entering the combustion chambers producing sweet white smoke, and mixing into the crankcase creating milky oil froth. Severe internal engine breach.",
+    "recommended_action": "Stop driving immediately! Running with contaminated oil will ruin crankshaft bearings. Tow vehicle to an engine specialist for head gasket replacement and cylinder head flatness testing.",
+    "preventive_maintenance": "Never operate an engine while overheating to avoid warping cylinder head casting."
+  },
+  {
+    "rule_id": "CAR_COOL_004",
+    "name": "Car Radiator Electric Fan Motor Failure",
+    "category": "cooling_lubrication",
+    "vehicle_applicability": {
+      "vehicle_types": ["car"],
+      "cooling_types": ["liquid_cooled"],
+      "fuel_types": ["petrol", "diesel", "hybrid"]
+    },
+    "conditions": [
+      { "fact": "engine_overheating_in_traffic_only", "operator": "==", "value": true },
+      { "fact": "radiator_fan_runs", "operator": "==", "value": false }
+    ],
+    "derived_facts": [
+      { "fact": "idle_airflow_deficient", "value": true }
+    ],
+    "conclusion": {
+      "fault_id": "FAULT_RADIATOR_FAN_FAILURE",
+      "title": "Failed Radiator Cooling Fan Motor or Relay",
+      "is_final_diagnosis": true
+    },
+    "severity": "high",
+    "safety_critical": false,
+    "priority": 84,
+    "explanation_template": "Engine overheats during city stop-and-go driving but normalizes at highway speeds because the electric cooling fan fails to engage.",
+    "recommended_action": "Test fan motor fuse, cooling fan relay, and temperature sensor. Replace cooling fan assembly if motor draws no current.",
+    "preventive_maintenance": "Verify radiator fan spin operation when turning on A/C compressor."
+  },
+  {
+    "rule_id": "CAR_ELEC_001",
+    "name": "Car Alternator / Charging System Failure",
+    "category": "electrical",
+    "vehicle_applicability": {
+      "vehicle_types": ["car"],
+      "cooling_types": ["any"],
+      "fuel_types": ["petrol", "diesel"]
+    },
+    "conditions": [
+      { "fact": "battery_warning_light_on", "operator": "==", "value": true },
+      { "fact": "alternator_charging_voltage", "operator": "<", "value": 13.0 }
+    ],
+    "derived_facts": [
+      { "fact": "alternator_output_substandard", "value": true }
+    ],
+    "conclusion": {
+      "fault_id": "FAULT_CAR_ALTERNATOR_DEFECTIVE",
+      "title": "Defective Car Alternator or Broken Serpentine Drive Belt",
+      "is_final_diagnosis": true
+    },
+    "severity": "high",
+    "safety_critical": false,
+    "priority": 88,
+    "explanation_template": "Dashboard battery charge indicator is illuminated and measured charging voltage while running is under 13.0V (normal is 13.8V-14.5V).",
+    "recommended_action": "Inspect alternator serpentine belt for slippage or breakage. If belt is intact, bench test alternator diodes and voltage regulator; replace alternator unit.",
+    "preventive_maintenance": "Inspect alternator drive belt tension and rib cracking every 30,000 km."
+  },
+  {
+    "rule_id": "CAR_ELEC_002",
+    "name": "Car Starter Motor Solenoid Contact Burnout",
+    "category": "electrical",
+    "vehicle_applicability": {
+      "vehicle_types": ["car"],
+      "cooling_types": ["any"],
+      "fuel_types": ["petrol", "diesel"]
+    },
+    "conditions": [
+      { "fact": "engine_starts", "operator": "==", "value": false },
+      { "fact": "starter_clicks_single_loud", "operator": "==", "value": true },
+      { "fact": "battery_voltage_normal", "operator": "==", "value": true }
+    ],
+    "derived_facts": [],
+    "conclusion": {
+      "fault_id": "FAULT_STARTER_MOTOR_DEFECTIVE",
+      "title": "Failed Starter Motor / Solenoid High-Current Contacts",
+      "is_final_diagnosis": true
+    },
+    "severity": "medium",
+    "safety_critical": false,
+    "priority": 82,
+    "explanation_template": "Battery voltage is strong and a single solid mechanical click occurs on ignition key turn, but the starter motor fails to spin the flywheel.",
+    "recommended_action": "Tap starter casing gently while attempting start to test for stuck brushes. Replace complete starter motor assembly if heavy +12V feed and solenoid signal are verified.",
+    "preventive_maintenance": "Keep starter motor wire connections clean and protected from road salt."
+  },
+  {
+    "rule_id": "CAR_BRAKE_001",
+    "name": "Car Front Brake Pads Below Minimum Wear Thickness",
+    "category": "brakes",
+    "vehicle_applicability": {
+      "vehicle_types": ["car"],
+      "cooling_types": ["any"],
+      "fuel_types": ["petrol", "diesel", "hybrid", "electric"]
+    },
+    "conditions": [
+      { "fact": "brake_pad_thickness_mm", "operator": "<=", "value": 2.0 },
+      { "fact": "brake_grinding_noise", "operator": "==", "value": true }
+    ],
+    "derived_facts": [
+      { "fact": "brake_failure_risk", "value": true }
+    ],
+    "conclusion": {
+      "fault_id": "FAULT_CAR_BRAKE_PADS_CRITICAL",
+      "title": "Severely Worn Brake Friction Pads & Disc Gouging",
+      "is_final_diagnosis": true
+    },
+    "severity": "critical",
+    "safety_critical": true,
+    "priority": 98,
+    "explanation_template": "Brake pad thickness has degraded to 2.0mm or less and metal-to-metal grinding occurs under braking, severely degrading stopping distance.",
+    "recommended_action": "Do not drive vehicle. Tow or drive cautiously at low speed directly to brake service center. Replace front brake pads and rotors.",
+    "preventive_maintenance": "Measure brake pad lining thickness during every tyre rotation or every 10,000 km."
+  },
+  {
+    "rule_id": "CAR_BRAKE_002",
+    "name": "Car Seized Brake Caliper Slide Pins",
+    "category": "brakes",
+    "vehicle_applicability": {
+      "vehicle_types": ["car"],
+      "cooling_types": ["any"],
+      "fuel_types": ["petrol", "diesel", "hybrid", "electric"]
+    },
+    "conditions": [
+      { "fact": "brake_pulls_to_one_side", "operator": "==", "value": true },
+      { "fact": "wheel_hot_to_touch", "operator": "==", "value": true }
+    ],
+    "derived_facts": [
+      { "fact": "brake_drag_active", "value": true }
+    ],
+    "conclusion": {
+      "fault_id": "FAULT_SEIZED_BRAKE_CALIPER",
+      "title": "Seized Brake Caliper Piston or Guide Pins (Brake Drag)",
+      "is_final_diagnosis": true
+    },
+    "severity": "high",
+    "safety_critical": true,
+    "priority": 93,
+    "explanation_template": "Vehicle pulls forcefully to one side under braking and the offending wheel hub emits extreme heat and burning brake pad odor, indicating stuck caliper slides.",
+    "recommended_action": "Disassemble brake caliper, lubricate slide pins with high-temperature silicone brake grease, inspect caliper piston boot for tears, or replace caliper assembly.",
+    "preventive_maintenance": "Service and lubricate caliper slider pins during brake pad changes."
+  },
+  {
+    "rule_id": "CAR_FUEL_001",
+    "name": "Car Fuel Delivery Pressure Deficient",
+    "category": "fuel_system",
+    "vehicle_applicability": {
+      "vehicle_types": ["car"],
+      "cooling_types": ["any"],
+      "fuel_types": ["petrol", "diesel"]
+    },
+    "conditions": [
+      { "fact": "engine_stalls_at_idle", "operator": "==", "value": true },
+      { "fact": "fuel_pressure_low", "operator": "==", "value": true }
+    ],
+    "derived_facts": [
+      { "fact": "fuel_delivery_compromised", "value": true }
+    ],
+    "conclusion": null,
+    "severity": "high",
+    "safety_critical": false,
+    "priority": 80,
+    "explanation_template": "Engine dies at idle and measured fuel rail pressure drops below factory specification.",
+    "recommended_action": "Attach mechanical fuel pressure gauge to fuel rail schrader valve and measure idle vs throttle pressure.",
+    "preventive_maintenance": "Replace fuel filter at manufacturer recommended intervals."
+  },
+  {
+    "rule_id": "CAR_FUEL_002",
+    "name": "Car Clogged In-Line Fuel Filter",
+    "category": "fuel_system",
+    "vehicle_applicability": {
+      "vehicle_types": ["car"],
+      "cooling_types": ["any"],
+      "fuel_types": ["petrol", "diesel"]
+    },
+    "conditions": [
+      { "fact": "fuel_delivery_compromised", "operator": "==", "value": true },
+      { "fact": "fuel_filter_clogged", "operator": "==", "value": true }
+    ],
+    "derived_facts": [],
+    "conclusion": {
+      "fault_id": "FAULT_CLOGGED_FUEL_FILTER",
+      "title": "Severely Restricted Fuel Filter Element",
+      "is_final_diagnosis": true
+    },
+    "severity": "medium",
+    "safety_critical": false,
+    "priority": 84,
+    "explanation_template": "Fuel delivery restriction traced to sediment accumulation inside the external or in-tank fuel filter cartridge.",
+    "recommended_action": "Depressurize fuel system, disconnect quick-connect fuel fittings, and install new fuel filter with correct flow direction arrow.",
+    "preventive_maintenance": "Replace fuel filter every 40,000 km or whenever refueling from questionable sources."
+  },
+  {
+    "rule_id": "CAR_FUEL_003",
+    "name": "Car Pressurized Fuel Line Leak",
+    "category": "fuel_system",
+    "vehicle_applicability": {
+      "vehicle_types": ["car"],
+      "cooling_types": ["any"],
+      "fuel_types": ["petrol", "diesel"]
+    },
+    "conditions": [
+      { "fact": "fuel_delivery_compromised", "operator": "==", "value": true },
+      { "fact": "fuel_smell_present", "operator": "==", "value": true },
+      { "fact": "visible_fuel_leak", "operator": "==", "value": true }
+    ],
+    "derived_facts": [
+      { "fact": "fuel_leak_detected", "value": true }
+    ],
+    "conclusion": {
+      "fault_id": "FAULT_FUEL_LINE_LEAK",
+      "title": "Pressurized Fuel Line or Injector O-Ring Leak (Fire Hazard)",
+      "is_final_diagnosis": true
+    },
+    "severity": "critical",
+    "safety_critical": true,
+    "priority": 100,
+    "explanation_template": "Raw fuel vapor smell accompanied by visible fuel dripping onto engine block or chassis lines under pressure. Extreme fire hazard.",
+    "recommended_action": "Shut off engine immediately. Disconnect vehicle battery. Do not attempt to drive. Replace damaged fuel hose or injector O-ring seals.",
+    "preventive_maintenance": "Inspect rubber fuel lines and quick-disconnect fittings for age hardening or dry rot."
+  },
+  {
+    "rule_id": "CAR_SUSP_001",
+    "name": "Car Wheel Dynamic Vibration Detected",
+    "category": "suspension_tyres",
+    "vehicle_applicability": {
+      "vehicle_types": ["car"],
+      "cooling_types": ["any"],
+      "fuel_types": ["petrol", "diesel", "hybrid", "electric"]
+    },
+    "conditions": [
+      { "fact": "steering_vibration_at_speed", "operator": "==", "value": true },
+      { "fact": "tyre_wear_uneven", "operator": "==", "value": true }
+    ],
+    "derived_facts": [
+      { "fact": "wheel_chassis_instability", "value": true }
+    ],
+    "conclusion": null,
+    "severity": "medium",
+    "safety_critical": false,
+    "priority": 75,
+    "explanation_template": "Steering wheel shimmy at highway speeds (80-110 km/h) accompanied by irregular tyre tread wear pattern.",
+    "recommended_action": "Check wheel balancing on dynamic balancer and inspect front suspension bushings.",
+    "preventive_maintenance": "Rotate tyres front-to-back every 10,000 km."
+  },
+  {
+    "rule_id": "CAR_SUSP_002",
+    "name": "Car Front Wheel Assembly Out of Balance",
+    "category": "suspension_tyres",
+    "vehicle_applicability": {
+      "vehicle_types": ["car"],
+      "cooling_types": ["any"],
+      "fuel_types": ["petrol", "diesel", "hybrid", "electric"]
+    },
+    "conditions": [
+      { "fact": "wheel_chassis_instability", "operator": "==", "value": true },
+      { "fact": "wheel_balance_weights_missing", "operator": "==", "value": true }
+    ],
+    "derived_facts": [],
+    "conclusion": {
+      "fault_id": "FAULT_WHEEL_IMBALANCE",
+      "title": "Front Wheel Dynamic Imbalance / Thrown Balance Weights",
+      "is_final_diagnosis": true
+    },
+    "severity": "low",
+    "safety_critical": false,
+    "priority": 82,
+    "explanation_template": "Steering wheel oscillation caused by centrifugal imbalance after adhesive wheel balance weight fell off.",
+    "recommended_action": "Mount wheels on a computerized dynamic spin balancer; apply adhesive lead-free balance weights to eliminate radial and lateral runout.",
+    "preventive_maintenance": "Rebalance wheels whenever new tyres are mounted."
+  },
+  {
+    "rule_id": "CAR_SUSP_003",
+    "name": "Car Front End Steering Misalignment",
+    "category": "suspension_tyres",
+    "vehicle_applicability": {
+      "vehicle_types": ["car"],
+      "cooling_types": ["any"],
+      "fuel_types": ["petrol", "diesel", "hybrid", "electric"]
+    },
+    "conditions": [
+      { "fact": "wheel_chassis_instability", "operator": "==", "value": true },
+      { "fact": "vehicle_pulls_left_or_right", "operator": "==", "value": true }
+    ],
+    "derived_facts": [],
+    "conclusion": {
+      "fault_id": "FAULT_WHEEL_MISALIGNMENT",
+      "title": "Front End Wheel Alignment Deviation (Camber / Toe Out of Spec)",
+      "is_final_diagnosis": true
+    },
+    "severity": "medium",
+    "safety_critical": false,
+    "priority": 83,
+    "explanation_template": "Vehicle drifts aggressively to one side on flat asphalt and inside or outside shoulder of tyre shows feathering.",
+    "recommended_action": "Perform 4-wheel computerized laser alignment to adjust tie rod toe angles and strut camber within manufacturer tolerances.",
+    "preventive_maintenance": "Check wheel alignment annually or immediately after hitting severe potholes or curbs."
+  },
+  {
+    "rule_id": "CAR_LUBR_001",
+    "name": "Car Engine Low Oil Pressure Warning",
+    "category": "cooling_lubrication",
+    "vehicle_applicability": {
+      "vehicle_types": ["car"],
+      "cooling_types": ["any"],
+      "fuel_types": ["petrol", "diesel"]
+    },
+    "conditions": [
+      { "fact": "oil_pressure_warning_light", "operator": "==", "value": true },
+      { "fact": "engine_oil_level_low", "operator": "==", "value": true }
+    ],
+    "derived_facts": [
+      { "fact": "low_oil_pressure_hazard", "value": true }
+    ],
+    "conclusion": {
+      "fault_id": "FAULT_CRITICAL_LOW_OIL_PRESSURE",
+      "title": "Critically Low Engine Oil Level & Loss of Hydraulic Pressure",
+      "is_final_diagnosis": true
+    },
+    "severity": "critical",
+    "safety_critical": true,
+    "priority": 99,
+    "explanation_template": "Red oil pressure lamp illuminated while dipstick indicates oil level below lower threshold. Severe friction damage to bearings imminent.",
+    "recommended_action": "Shut off engine immediately. Add approved viscosity engine oil before attempting any restart. Do not run engine if warning light persists.",
+    "preventive_maintenance": "Check engine oil dipstick weekly or before long highway trips."
+  },
+  {
+    "rule_id": "CAR_LUBR_002",
+    "name": "Car Oil Sump / Pan Gasket Rupture",
+    "category": "cooling_lubrication",
+    "vehicle_applicability": {
+      "vehicle_types": ["car"],
+      "cooling_types": ["any"],
+      "fuel_types": ["petrol", "diesel"]
+    },
+    "conditions": [
+      { "fact": "low_oil_pressure_hazard", "operator": "==", "value": true },
+      { "fact": "visible_oil_leak", "operator": "==", "value": true }
+    ],
+    "derived_facts": [],
+    "conclusion": {
+      "fault_id": "FAULT_MAJOR_OIL_PAN_LEAK",
+      "title": "Major Oil Sump / Drain Plug Structural Oil Leak",
+      "is_final_diagnosis": true
+    },
+    "severity": "critical",
+    "safety_critical": true,
+    "priority": 97,
+    "explanation_template": "Oil pressure loss caused by active fluid dumping from cracked oil pan, damaged drain plug threads, or ruptured pan gasket.",
+    "recommended_action": "Inspect oil pan underneath for puncture impact damage. Replace gasket or oil pan and refill with synthetic engine oil.",
+    "preventive_maintenance": "Always replace drain plug crush washer during every oil change."
+  },
+  {
+    "rule_id": "CAR_ENG_001",
+    "name": "Car Excessive Chassis Vibration Detected",
+    "category": "engine",
+    "vehicle_applicability": {
+      "vehicle_types": ["car"],
+      "cooling_types": ["any"],
+      "fuel_types": ["petrol", "diesel"]
+    },
+    "conditions": [
+      { "fact": "excessive_engine_vibration", "operator": "==", "value": true },
+      { "fact": "vibration_at_idle", "operator": "==", "value": true }
+    ],
+    "derived_facts": [
+      { "fact": "engine_dampening_failure", "value": true }
+    ],
+    "conclusion": null,
+    "severity": "medium",
+    "safety_critical": false,
+    "priority": 70,
+    "explanation_template": "Pronounced shaking felt through steering wheel, dashboard, and seat cushions during idle that smooths out at higher RPMs.",
+    "recommended_action": "Inspect engine and transmission rubber isolator mounts for settling or tears.",
+    "preventive_maintenance": "Inspect engine mounts every 50,000 km."
+  },
+  {
+    "rule_id": "CAR_ENG_002",
+    "name": "Car Hydraulic / Rubber Engine Mount Failure",
+    "category": "engine",
+    "vehicle_applicability": {
+      "vehicle_types": ["car"],
+      "cooling_types": ["any"],
+      "fuel_types": ["petrol", "diesel"]
+    },
+    "conditions": [
+      { "fact": "engine_dampening_failure", "operator": "==", "value": true },
+      { "fact": "engine_mount_cracked", "operator": "==", "value": true }
+    ],
+    "derived_facts": [],
+    "conclusion": {
+      "fault_id": "FAULT_WORN_ENGINE_MOUNTS",
+      "title": "Broken or Collapsed Hydraulic Engine Mounts",
+      "is_final_diagnosis": true
+    },
+    "severity": "medium",
+    "safety_critical": false,
+    "priority": 85,
+    "explanation_template": "Rubber vulcanization is cracked or hydraulic dampening fluid has leaked from the engine mount, allowing direct metal-to-chassis harmonic transfer.",
+    "recommended_action": "Support engine oil pan safely with a floor jack and replace failed engine mounts with OEM replacements.",
+    "preventive_maintenance": "Prevent engine oil from leaking onto rubber mounts to avoid chemical softening."
+  },
+  {
+    "rule_id": "CAR_TRANS_001",
+    "name": "Car Automatic Transmission Fluid Degradation",
+    "category": "transmission",
+    "vehicle_applicability": {
+      "vehicle_types": ["car"],
+      "cooling_types": ["any"],
+      "fuel_types": ["petrol", "diesel", "hybrid"]
+    },
+    "conditions": [
+      { "fact": "trans_shifts_harsh_or_delayed", "operator": "==", "value": true },
+      { "fact": "atf_fluid_black_burnt", "operator": "==", "value": true }
+    ],
+    "derived_facts": [
+      { "fact": "hydraulic_shift_pressure_compromised", "value": true }
+    ],
+    "conclusion": {
+      "fault_id": "FAULT_AUTO_TRANS_FLUID_DEGRADED",
+      "title": "Thermal Degradation & Oxidation of Automatic Transmission Fluid (ATF)",
+      "is_final_diagnosis": true
+    },
+    "severity": "high",
+    "safety_critical": false,
+    "priority": 86,
+    "explanation_template": "Delayed, slipping, or shuddering gear shifts caused by oxidized, burnt dark transmission fluid losing hydraulic friction characteristics.",
+    "recommended_action": "Perform full automatic transmission fluid flush, replace transmission pan filter and clean magnet pan debris.",
+    "preventive_maintenance": "Change automatic transmission fluid every 45,000-60,000 km."
+  },
+  {
+    "rule_id": "CAR_TRANS_002",
+    "name": "Car Constant Velocity (CV) Axle Joint Wear",
+    "category": "transmission",
+    "vehicle_applicability": {
+      "vehicle_types": ["car"],
+      "cooling_types": ["any"],
+      "fuel_types": ["petrol", "diesel", "hybrid", "electric"]
+    },
+    "conditions": [
+      { "fact": "clicking_noise_on_sharp_turns", "operator": "==", "value": true },
+      { "fact": "cv_boot_torn", "operator": "==", "value": true }
+    ],
+    "derived_facts": [
+      { "fact": "cv_joint_contamination", "value": true }
+    ],
+    "conclusion": {
+      "fault_id": "FAULT_WORN_CV_JOINT",
+      "title": "Worn Outer Constant Velocity (CV) Axle Joint",
+      "is_final_diagnosis": true
+    },
+    "severity": "medium",
+    "safety_critical": false,
+    "priority": 83,
+    "explanation_template": "Rhythmic metallic popping or clicking when making tight turns caused by torn neoprene CV boot flinging grease and admitting abrasive road dirt.",
+    "recommended_action": "Replace complete half-shaft CV axle assembly. Inspect opposite side boot condition.",
+    "preventive_maintenance": "Visually inspect CV rubber accordion boots for splits during every oil change."
+  }
+]

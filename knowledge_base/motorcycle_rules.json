@@ -1,0 +1,550 @@
+[
+  {
+    "rule_id": "MOTO_ELEC_001",
+    "name": "Motorcycle Weak Battery Cranking Failure",
+    "category": "electrical",
+    "vehicle_applicability": {
+      "vehicle_types": ["motorcycle"],
+      "cooling_types": ["any"],
+      "fuel_types": ["petrol"]
+    },
+    "conditions": [
+      { "fact": "engine_starts", "operator": "==", "value": false },
+      { "fact": "starter_clicks", "operator": "==", "value": true },
+      { "fact": "headlights_dim", "operator": "==", "value": true }
+    ],
+    "derived_facts": [
+      { "fact": "power_supply_insufficient", "value": true }
+    ],
+    "conclusion": {
+      "fault_id": "FAULT_WEAK_BATTERY",
+      "title": "Depleted or Weak Motorcycle Battery",
+      "is_final_diagnosis": true
+    },
+    "severity": "medium",
+    "safety_critical": false,
+    "priority": 85,
+    "explanation_template": "Starter solenoid clicks rapidly and headlights dim while engine fails to turn over, indicating low battery cranking amps.",
+    "recommended_action": "Measure resting voltage with a multimeter (should be >= 12.6V). Recharge with a trickle charger or replace battery if voltage drops below 9.6V under load.",
+    "preventive_maintenance": "Clean battery terminals and verify charging voltage every 3 months."
+  },
+  {
+    "rule_id": "MOTO_ELEC_002",
+    "name": "Motorcycle Stator or Regulator Suspect",
+    "category": "electrical",
+    "vehicle_applicability": {
+      "vehicle_types": ["motorcycle"],
+      "cooling_types": ["any"],
+      "fuel_types": ["petrol"]
+    },
+    "conditions": [
+      { "fact": "power_supply_insufficient", "operator": "==", "value": true },
+      { "fact": "battery_recharged_recently", "operator": "==", "value": true }
+    ],
+    "derived_facts": [
+      { "fact": "charging_system_suspect", "value": true }
+    ],
+    "conclusion": null,
+    "severity": "medium",
+    "safety_critical": false,
+    "priority": 80,
+    "explanation_template": "The battery continues to deplete despite recent recharging, indicating a failure in the charging circuit.",
+    "recommended_action": "Inspect charging system stator coil resistance and rectifier output.",
+    "preventive_maintenance": "Test charging system output at 3,000 RPM annually."
+  },
+  {
+    "rule_id": "MOTO_ELEC_003",
+    "name": "Motorcycle Stator / Rectifier Failure",
+    "category": "electrical",
+    "vehicle_applicability": {
+      "vehicle_types": ["motorcycle"],
+      "cooling_types": ["any"],
+      "fuel_types": ["petrol"]
+    },
+    "conditions": [
+      { "fact": "charging_system_suspect", "operator": "==", "value": true },
+      { "fact": "stator_ac_voltage_low", "operator": "==", "value": true }
+    ],
+    "derived_facts": [],
+    "conclusion": {
+      "fault_id": "FAULT_STATOR_REGULATOR_FAILURE",
+      "title": "Defective Motorcycle Stator or Regulator-Rectifier",
+      "is_final_diagnosis": true
+    },
+    "severity": "high",
+    "safety_critical": false,
+    "priority": 90,
+    "explanation_template": "Low AC output from the stator coils combined with persistent battery drainage confirms a burnt stator or failed regulator-rectifier.",
+    "recommended_action": "Check AC voltage across all three stator yellow wires (should exceed 50V AC at 4000 RPM). Replace damaged stator coil or rectifier unit.",
+    "preventive_maintenance": "Ensure regulator-rectifier heatsink has adequate cooling airflow."
+  },
+  {
+    "rule_id": "MOTO_ENG_001",
+    "name": "Motorcycle Spark Plug Fouling",
+    "category": "engine",
+    "vehicle_applicability": {
+      "vehicle_types": ["motorcycle"],
+      "cooling_types": ["any"],
+      "fuel_types": ["petrol"]
+    },
+    "conditions": [
+      { "fact": "engine_cranks", "operator": "==", "value": true },
+      { "fact": "engine_starts", "operator": "==", "value": false },
+      { "fact": "spark_plug_wet_or_black", "operator": "==", "value": true }
+    ],
+    "derived_facts": [
+      { "fact": "ignition_spark_compromised", "value": true }
+    ],
+    "conclusion": {
+      "fault_id": "FAULT_FOULED_SPARK_PLUG",
+      "title": "Carbon or Fuel Fouled Spark Plug",
+      "is_final_diagnosis": true
+    },
+    "severity": "low",
+    "safety_critical": false,
+    "priority": 75,
+    "explanation_template": "The engine cranks normally but fails to fire, and spark plug inspection reveals heavy black carbon or wet fuel coating.",
+    "recommended_action": "Remove spark plug, clean electrode with a wire brush, check gap with feeler gauge (typically 0.7-0.8mm), or replace with specified NGK/Bosch plug.",
+    "preventive_maintenance": "Inspect spark plug condition and gap every 5,000 km."
+  },
+  {
+    "rule_id": "MOTO_ENG_002",
+    "name": "Motorcycle Restricted Air Filter",
+    "category": "engine",
+    "vehicle_applicability": {
+      "vehicle_types": ["motorcycle"],
+      "cooling_types": ["any"],
+      "fuel_types": ["petrol"]
+    },
+    "conditions": [
+      { "fact": "reduced_engine_power", "operator": "==", "value": true },
+      { "fact": "black_smoke_exhaust", "operator": "==", "value": true },
+      { "fact": "air_filter_dirty", "operator": "==", "value": true }
+    ],
+    "derived_facts": [
+      { "fact": "air_intake_restricted", "value": true }
+    ],
+    "conclusion": {
+      "fault_id": "FAULT_RESTRICTED_AIR_FILTER",
+      "title": "Clogged or Dirty Air Filter Element",
+      "is_final_diagnosis": true
+    },
+    "severity": "medium",
+    "safety_critical": false,
+    "priority": 70,
+    "explanation_template": "Reduced engine power accompanied by black exhaust smoke and physical air filter clogging indicates rich air-fuel mixture due to airflow starvation.",
+    "recommended_action": "Remove air filter element. Clean with compressed air if foam/washable, or replace immediately if paper cartridge.",
+    "preventive_maintenance": "Inspect and clean air filter every 4,000 km, especially in dusty riding conditions."
+  },
+  {
+    "rule_id": "MOTO_ENG_003",
+    "name": "Motorcycle Carburetor Pilot Jet Clogging",
+    "category": "engine",
+    "vehicle_applicability": {
+      "vehicle_types": ["motorcycle"],
+      "cooling_types": ["any"],
+      "fuel_types": ["petrol"]
+    },
+    "conditions": [
+      { "fact": "engine_starts_with_choke_only", "operator": "==", "value": true },
+      { "fact": "dies_when_choke_opened", "operator": "==", "value": true }
+    ],
+    "derived_facts": [
+      { "fact": "idle_circuit_fuel_starved", "value": true }
+    ],
+    "conclusion": {
+      "fault_id": "FAULT_CLOGGED_PILOT_JET",
+      "title": "Clogged Carburetor Pilot / Idle Jet",
+      "is_final_diagnosis": true
+    },
+    "severity": "medium",
+    "safety_critical": false,
+    "priority": 78,
+    "explanation_template": "Engine runs only with the choke engaged and dies as soon as the throttle is opened or choke released, indicating a blocked idle jet orifice.",
+    "recommended_action": "Disassemble carburetor float bowl, remove pilot jet, and clean orifice with aerosol carburetor cleaner and compressed air (never use hard wire).",
+    "preventive_maintenance": "Drain carburetor float bowl before storing motorcycle for more than 30 days."
+  },
+  {
+    "rule_id": "MOTO_TRANS_001",
+    "name": "Motorcycle Wet Clutch Slipping",
+    "category": "transmission",
+    "vehicle_applicability": {
+      "vehicle_types": ["motorcycle"],
+      "cooling_types": ["any"],
+      "fuel_types": ["petrol"]
+    },
+    "conditions": [
+      { "fact": "rpm_rises_without_speed", "operator": "==", "value": true },
+      { "fact": "clutch_slipping", "operator": "==", "value": true }
+    ],
+    "derived_facts": [
+      { "fact": "drivetrain_slip_detected", "value": true }
+    ],
+    "conclusion": null,
+    "severity": "medium",
+    "safety_critical": false,
+    "priority": 70,
+    "explanation_template": "Engine RPM increases sharply upon acceleration without corresponding increase in rear wheel speed, signifying clutch slippage.",
+    "recommended_action": "Verify clutch lever freeplay before disassembling clutch pack.",
+    "preventive_maintenance": "Use only JASO MA/MA2 certified motorcycle oil for wet clutches."
+  },
+  {
+    "rule_id": "MOTO_TRANS_002",
+    "name": "Motorcycle Clutch Cable Misadjusted",
+    "category": "transmission",
+    "vehicle_applicability": {
+      "vehicle_types": ["motorcycle"],
+      "cooling_types": ["any"],
+      "fuel_types": ["petrol"]
+    },
+    "conditions": [
+      { "fact": "drivetrain_slip_detected", "operator": "==", "value": true },
+      { "fact": "clutch_cable_freeplay_low", "operator": "==", "value": true }
+    ],
+    "derived_facts": [],
+    "conclusion": {
+      "fault_id": "FAULT_CLUTCH_CABLE_MISADJUSTED",
+      "title": "Insufficient Motorcycle Clutch Lever Freeplay",
+      "is_final_diagnosis": true
+    },
+    "severity": "low",
+    "safety_critical": false,
+    "priority": 82,
+    "explanation_template": "Clutch slip caused by lack of lever slack, keeping constant tension on the clutch release mechanism.",
+    "recommended_action": "Adjust clutch cable barrel adjusters to provide 10-15mm of free play at the clutch lever tip.",
+    "preventive_maintenance": "Lubricate clutch cable and check freeplay monthly."
+  },
+  {
+    "rule_id": "MOTO_TRANS_003",
+    "name": "Motorcycle Worn Friction Plates",
+    "category": "transmission",
+    "vehicle_applicability": {
+      "vehicle_types": ["motorcycle"],
+      "cooling_types": ["any"],
+      "fuel_types": ["petrol"]
+    },
+    "conditions": [
+      { "fact": "drivetrain_slip_detected", "operator": "==", "value": true },
+      { "fact": "clutch_friction_plates_worn", "operator": "==", "value": true }
+    ],
+    "derived_facts": [],
+    "conclusion": {
+      "fault_id": "FAULT_WORN_CLUTCH_PLATES",
+      "title": "Worn Motorcycle Clutch Friction Plates & Springs",
+      "is_final_diagnosis": true
+    },
+    "severity": "high",
+    "safety_critical": false,
+    "priority": 85,
+    "explanation_template": "Persistent slippage despite proper cable freeplay indicates friction plate lining wear below service limit or fatigued clutch springs.",
+    "recommended_action": "Remove clutch cover, measure friction plate thickness and spring free length with vernier calipers; replace plates and springs as a set.",
+    "preventive_maintenance": "Avoid aggressive clutch slipping and launch starts."
+  },
+  {
+    "rule_id": "MOTO_BRAKE_001",
+    "name": "Motorcycle Front Brake Pad Wear Limit",
+    "category": "brakes",
+    "vehicle_applicability": {
+      "vehicle_types": ["motorcycle"],
+      "cooling_types": ["any"],
+      "fuel_types": ["petrol"]
+    },
+    "conditions": [
+      { "fact": "brake_pad_thickness_mm", "operator": "<=", "value": 2.0 },
+      { "fact": "brake_grinding_noise", "operator": "==", "value": true }
+    ],
+    "derived_facts": [
+      { "fact": "brake_failure_risk", "value": true }
+    ],
+    "conclusion": {
+      "fault_id": "FAULT_SEVERELY_WORN_BRAKE_PADS",
+      "title": "Critically Worn Motorcycle Brake Friction Pads",
+      "is_final_diagnosis": true
+    },
+    "severity": "critical",
+    "safety_critical": true,
+    "priority": 98,
+    "explanation_template": "Brake friction lining is at or below 2.0mm and metallic scraping is heard, meaning backing plates are contacting the brake rotor.",
+    "recommended_action": "Do not ride motorcycle. Immediately replace front brake pads and inspect brake rotor for scoring or grooving.",
+    "preventive_maintenance": "Visually inspect brake pad wear indicator grooves every 3,000 km."
+  },
+  {
+    "rule_id": "MOTO_BRAKE_002",
+    "name": "Motorcycle Spongy Brake Lever Air in Lines",
+    "category": "brakes",
+    "vehicle_applicability": {
+      "vehicle_types": ["motorcycle"],
+      "cooling_types": ["any"],
+      "fuel_types": ["petrol"]
+    },
+    "conditions": [
+      { "fact": "brake_pedal_spongy", "operator": "==", "value": true },
+      { "fact": "brake_fluid_level_normal", "operator": "==", "value": true }
+    ],
+    "derived_facts": [
+      { "fact": "brake_hydraulic_air_entrapment", "value": true }
+    ],
+    "conclusion": {
+      "fault_id": "FAULT_AIR_IN_BRAKE_LINES",
+      "title": "Air Entrapment in Motorcycle Hydraulic Brake Line",
+      "is_final_diagnosis": true
+    },
+    "severity": "high",
+    "safety_critical": true,
+    "priority": 92,
+    "explanation_template": "Brake lever compresses excessively close to the handlebar grip despite adequate fluid in the master cylinder reservoir, indicating compressible air bubbles in lines.",
+    "recommended_action": "Bleed hydraulic brake lines using fresh DOT 4 brake fluid until all air bubbles are expelled and lever feel is firm.",
+    "preventive_maintenance": "Flush and replace brake fluid every 2 years or 20,000 km."
+  },
+  {
+    "rule_id": "MOTO_CHAIN_001",
+    "name": "Motorcycle Drive Chain Excessive Slack",
+    "category": "transmission",
+    "vehicle_applicability": {
+      "vehicle_types": ["motorcycle"],
+      "cooling_types": ["any"],
+      "fuel_types": ["petrol"]
+    },
+    "conditions": [
+      { "fact": "chain_slack_mm", "operator": ">=", "value": 45.0 },
+      { "fact": "chain_slapping_noise", "operator": "==", "value": true }
+    ],
+    "derived_facts": [
+      { "fact": "chain_derailment_hazard", "value": true }
+    ],
+    "conclusion": {
+      "fault_id": "FAULT_EXCESSIVE_CHAIN_SLACK",
+      "title": "Excessive Drive Chain Slack & Derailment Hazard",
+      "is_final_diagnosis": true
+    },
+    "severity": "high",
+    "safety_critical": true,
+    "priority": 90,
+    "explanation_template": "Drive chain slack measures >= 45mm and slaps against the swingarm, posing a severe risk of chain derailment and rear wheel lockup.",
+    "recommended_action": "Loosen axle nut, adjust swingarm chain tensioner bolts symmetrically to achieve 25-30mm slack, and retorque rear axle.",
+    "preventive_maintenance": "Clean, lubricate, and inspect drive chain tension every 500-800 km."
+  },
+  {
+    "rule_id": "MOTO_CHAIN_002",
+    "name": "Motorcycle Worn Sprocket Teeth",
+    "category": "transmission",
+    "vehicle_applicability": {
+      "vehicle_types": ["motorcycle"],
+      "cooling_types": ["any"],
+      "fuel_types": ["petrol"]
+    },
+    "conditions": [
+      { "fact": "sprocket_teeth_hooked", "operator": "==", "value": true },
+      { "fact": "chain_skipping_under_acceleration", "operator": "==", "value": true }
+    ],
+    "derived_facts": [],
+    "conclusion": {
+      "fault_id": "FAULT_WORN_SPROCKET_DRIVE",
+      "title": "Worn Countershaft / Rear Sprocket and Stretched Chain",
+      "is_final_diagnosis": true
+    },
+    "severity": "medium",
+    "safety_critical": false,
+    "priority": 76,
+    "explanation_template": "Sprocket teeth show shark-tooth hooking and the drive chain skips under hard throttle, indicating pitch elongation.",
+    "recommended_action": "Replace front countershaft sprocket, rear wheel sprocket, and drive chain as a complete matched kit.",
+    "preventive_maintenance": "Never replace chain without inspecting sprocket tooth wear profile."
+  },
+  {
+    "rule_id": "MOTO_SUSP_001",
+    "name": "Motorcycle Front Fork Seal Oil Leak",
+    "category": "suspension_tyres",
+    "vehicle_applicability": {
+      "vehicle_types": ["motorcycle"],
+      "cooling_types": ["any"],
+      "fuel_types": ["petrol"]
+    },
+    "conditions": [
+      { "fact": "fork_tube_oil_residue", "operator": "==", "value": true },
+      { "fact": "front_suspension_bouncy", "operator": "==", "value": true }
+    ],
+    "derived_facts": [
+      { "fact": "fork_damping_depleted", "value": true }
+    ],
+    "conclusion": {
+      "fault_id": "FAULT_FORK_SEAL_LEAK",
+      "title": "Blown Front Fork Oil Seal & Loss of Damping",
+      "is_final_diagnosis": true
+    },
+    "severity": "medium",
+    "safety_critical": false,
+    "priority": 72,
+    "explanation_template": "Visible oil coating on the chrome fork stanchions combined with excessive diving under braking indicates ruptured fork oil seals.",
+    "recommended_action": "Disassemble front fork legs, clean stanchions, replace fork oil seals and dust caps, and refill with specified viscosity fork oil.",
+    "preventive_maintenance": "Keep fork stanchions clean of dried bug splatter and road grit."
+  },
+  {
+    "rule_id": "MOTO_STEER_001",
+    "name": "Motorcycle Steering Head Bearing Notchy",
+    "category": "suspension_tyres",
+    "vehicle_applicability": {
+      "vehicle_types": ["motorcycle"],
+      "cooling_types": ["any"],
+      "fuel_types": ["petrol"]
+    },
+    "conditions": [
+      { "fact": "steering_notchy_center_detent", "operator": "==", "value": true },
+      { "fact": "front_end_instability_low_speed", "operator": "==", "value": true }
+    ],
+    "derived_facts": [
+      { "fact": "steering_loss_risk", "value": true }
+    ],
+    "conclusion": {
+      "fault_id": "FAULT_STEERING_HEAD_BEARINGS",
+      "title": "Brinelled or Worn Steering Head Bearings",
+      "is_final_diagnosis": true
+    },
+    "severity": "high",
+    "safety_critical": true,
+    "priority": 91,
+    "explanation_template": "Handlebars have a distinct notch or indexing detent when turning through center position, making low-speed balance and countersteering hazardous.",
+    "recommended_action": "Elevate front wheel, disassemble steering triple clamp, inspect bearing races for pitting, and replace with tapered roller bearings.",
+    "preventive_maintenance": "Check steering stem play and regrease bearings every 15,000 km."
+  },
+  {
+    "rule_id": "MOTO_COOL_001",
+    "name": "Motorcycle Air-Cooled Cylinder Fin Overheating",
+    "category": "cooling_lubrication",
+    "vehicle_applicability": {
+      "vehicle_types": ["motorcycle"],
+      "cooling_types": ["air_cooled"],
+      "fuel_types": ["petrol"]
+    },
+    "conditions": [
+      { "fact": "engine_overheating", "operator": "==", "value": true },
+      { "fact": "cylinder_fins_mud_caked", "operator": "==", "value": true }
+    ],
+    "derived_facts": [
+      { "fact": "thermal_dissipation_blocked", "value": true }
+    ],
+    "conclusion": {
+      "fault_id": "FAULT_AIR_COOLING_FIN_BLOCKAGE",
+      "title": "Air-Cooled Engine Cylinder Thermal Blockage",
+      "is_final_diagnosis": true
+    },
+    "severity": "high",
+    "safety_critical": false,
+    "priority": 83,
+    "explanation_template": "Air-cooled cylinder cooling fins are heavily packed with mud or road grime, preventing convection cooling and causing thermal overload.",
+    "recommended_action": "Allow engine to cool completely. Gently wash away debris from cylinder head and barrel cooling fins using a soft brush and degreaser.",
+    "preventive_maintenance": "Inspect and clean engine cooling fins after riding through mud or unpaved terrain."
+  },
+  {
+    "rule_id": "MOTO_COOL_002",
+    "name": "Motorcycle Liquid Coolant Reservoir Empty",
+    "category": "cooling_lubrication",
+    "vehicle_applicability": {
+      "vehicle_types": ["motorcycle"],
+      "cooling_types": ["liquid_cooled"],
+      "fuel_types": ["petrol"]
+    },
+    "conditions": [
+      { "fact": "engine_overheating", "operator": "==", "value": true },
+      { "fact": "coolant_level_low", "operator": "==", "value": true },
+      { "fact": "radiator_fan_runs", "operator": "==", "value": true }
+    ],
+    "derived_facts": [
+      { "fact": "coolant_loss_detected", "value": true }
+    ],
+    "conclusion": {
+      "fault_id": "FAULT_MOTO_LOW_COOLANT",
+      "title": "Low Coolant Level in Liquid-Cooled Motorcycle",
+      "is_final_diagnosis": true
+    },
+    "severity": "high",
+    "safety_critical": false,
+    "priority": 86,
+    "explanation_template": "Engine temperature is high and radiator fan is operating continuously, but coolant expansion tank is empty, indicating coolant loss.",
+    "recommended_action": "Wait for engine to cool. Top up radiator and expansion tank with 50/50 ethylene glycol coolant; check for hose seepage.",
+    "preventive_maintenance": "Check coolant reservoir level before long rides."
+  },
+  {
+    "rule_id": "MOTO_FUEL_001",
+    "name": "Motorcycle Petcock / Vacuum Fuel Valve Blocked",
+    "category": "fuel_system",
+    "vehicle_applicability": {
+      "vehicle_types": ["motorcycle"],
+      "cooling_types": ["any"],
+      "fuel_types": ["petrol"]
+    },
+    "conditions": [
+      { "fact": "engine_starts", "operator": "==", "value": true },
+      { "fact": "dies_after_two_minutes", "operator": "==", "value": true },
+      { "fact": "fuel_tank_cap_vent_open", "operator": "==", "value": true }
+    ],
+    "derived_facts": [
+      { "fact": "fuel_gravity_flow_restricted", "value": true }
+    ],
+    "conclusion": {
+      "fault_id": "FAULT_PETCOCK_FLOW_RESTRICTION",
+      "title": "Defective Vacuum Petcock or Blocked Fuel Screen",
+      "is_final_diagnosis": true
+    },
+    "severity": "medium",
+    "safety_critical": false,
+    "priority": 77,
+    "explanation_template": "Motorcycle runs briefly on fuel in the carburetor float bowl then starves, pointing to a failed petcock vacuum diaphragm or clogged tank filter screen.",
+    "recommended_action": "Inspect vacuum line to petcock for cracks. Disconnect fuel line into a container to verify steady gravity fuel flow on PRI or cranking.",
+    "preventive_maintenance": "Flush fuel tank sediment and clean in-tank petcock mesh filter every 2 years."
+  },
+  {
+    "rule_id": "MOTO_TYRE_001",
+    "name": "Motorcycle Tyre Pressure Underinflated",
+    "category": "suspension_tyres",
+    "vehicle_applicability": {
+      "vehicle_types": ["motorcycle"],
+      "cooling_types": ["any"],
+      "fuel_types": ["petrol"]
+    },
+    "conditions": [
+      { "fact": "heavy_sluggish_steering", "operator": "==", "value": true },
+      { "fact": "tyre_pressure_low", "operator": "==", "value": true }
+    ],
+    "derived_facts": [
+      { "fact": "contact_patch_deformed", "value": true }
+    ],
+    "conclusion": {
+      "fault_id": "FAULT_UNDERINFLATED_TYRES",
+      "title": "Low Motorcycle Tyre Pressure / Puncture Hazard",
+      "is_final_diagnosis": true
+    },
+    "severity": "medium",
+    "safety_critical": false,
+    "priority": 74,
+    "explanation_template": "Heavy, wandering steering feel caused by low pneumatic pressure across front or rear motorcycle tyre.",
+    "recommended_action": "Use an accurate pressure gauge to inflate tyres to manufacturer cold spec (typically 28-36 PSI front/rear). Inspect tread for nails.",
+    "preventive_maintenance": "Verify cold tyre pressures weekly."
+  },
+  {
+    "rule_id": "MOTO_TYRE_002",
+    "name": "Motorcycle Tyre Exposed Cord Structural Rupture",
+    "category": "suspension_tyres",
+    "vehicle_applicability": {
+      "vehicle_types": ["motorcycle"],
+      "cooling_types": ["any"],
+      "fuel_types": ["petrol"]
+    },
+    "conditions": [
+      { "fact": "tyre_cord_visible", "operator": "==", "value": true }
+    ],
+    "derived_facts": [
+      { "fact": "tyre_blowout_hazard", "value": true }
+    ],
+    "conclusion": {
+      "fault_id": "FAULT_MOTO_CORD_EXPOSED",
+      "title": "Extreme Tyre Carcass Failure / Visible Steel Cord",
+      "is_final_diagnosis": true
+    },
+    "severity": "critical",
+    "safety_critical": true,
+    "priority": 99,
+    "explanation_template": "Steel cords or nylon carcass plies are visible through tread rubber. Catastrophic tyre blowout risk.",
+    "recommended_action": "Do not ride the motorcycle under any circumstances. Transport motorcycle on a trailer to replace the tyre immediately.",
+    "preventive_maintenance": "Replace motorcycle tyres before tread depth reaches 1.0mm or after 5 years from date of manufacture."
+  }
+]

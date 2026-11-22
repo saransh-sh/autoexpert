@@ -1,0 +1,405 @@
+[
+  {
+    "rule_id": "MAINT_OIL_001",
+    "name": "Engine Oil Service Interval Exceeded",
+    "category": "maintenance",
+    "vehicle_applicability": {
+      "vehicle_types": ["any"],
+      "cooling_types": ["any"],
+      "fuel_types": ["petrol", "diesel", "hybrid"]
+    },
+    "conditions": [
+      { "fact": "km_since_last_oil_change", "operator": ">=", "value": 10000.0 },
+      { "fact": "oil_viscosity_dark_sludgy", "operator": "==", "value": true }
+    ],
+    "derived_facts": [
+      { "fact": "lubrication_protection_expired", "value": true }
+    ],
+    "conclusion": {
+      "fault_id": "FAULT_MAINT_OIL_OVERDUE",
+      "title": "Engine Oil & Filter Service Severely Overdue",
+      "is_final_diagnosis": true
+    },
+    "severity": "medium",
+    "safety_critical": false,
+    "priority": 75,
+    "explanation_template": "Odometer interval since last oil change has exceeded 10,000 km and the engine oil shows black sludging, indicating thermal breakdown and depleted anti-wear additives.",
+    "recommended_action": "Drain engine oil completely while warm, install new OEM oil filter, and refill with vehicle-specified synthetic oil grade.",
+    "preventive_maintenance": "Change engine oil every 7,500-10,000 km or 12 months, whichever comes first."
+  },
+  {
+    "rule_id": "MAINT_BRAKE_001",
+    "name": "Hydraulic Brake Fluid Moisture Contamination",
+    "category": "maintenance",
+    "vehicle_applicability": {
+      "vehicle_types": ["any"],
+      "cooling_types": ["any"],
+      "fuel_types": ["any"]
+    },
+    "conditions": [
+      { "fact": "brake_fluid_months_in_service", "operator": ">=", "value": 24.0 },
+      { "fact": "brake_fluid_moisture_percent", "operator": ">=", "value": 3.0 }
+    ],
+    "derived_facts": [
+      { "fact": "brake_fluid_boiling_point_degraded", "value": true }
+    ],
+    "conclusion": {
+      "fault_id": "FAULT_MAINT_BRAKE_FLUID_CONTAMINATED",
+      "title": "Brake Fluid Moisture Contamination (Vapour Lock Hazard)",
+      "is_final_diagnosis": true
+    },
+    "severity": "high",
+    "safety_critical": true,
+    "priority": 94,
+    "explanation_template": "Hygroscopic glycol brake fluid has absorbed >= 3% ambient moisture over 24+ months, reducing wet boiling point and creating vapour lock brake fade risk under sustained braking.",
+    "recommended_action": "Flush complete hydraulic brake system with fresh unopened container of DOT 4 or DOT 5.1 brake fluid until clear at all bleeder screws.",
+    "preventive_maintenance": "Flush brake fluid every 24 months regardless of distance driven."
+  },
+  {
+    "rule_id": "MAINT_COOL_001",
+    "name": "Engine Coolant Anti-Corrosion Depletion",
+    "category": "maintenance",
+    "vehicle_applicability": {
+      "vehicle_types": ["any"],
+      "cooling_types": ["liquid_cooled"],
+      "fuel_types": ["any"]
+    },
+    "conditions": [
+      { "fact": "coolant_age_years", "operator": ">=", "value": 3.0 },
+      { "fact": "coolant_discolored_brownish", "operator": "==", "value": true }
+    ],
+    "derived_facts": [
+      { "fact": "corrosion_inhibitors_exhausted", "value": true }
+    ],
+    "conclusion": {
+      "fault_id": "FAULT_MAINT_COOLANT_EXHAUSTED",
+      "title": "Depleted Engine Coolant & Electrolytic Corrosion Risk",
+      "is_final_diagnosis": true
+    },
+    "severity": "medium",
+    "safety_critical": false,
+    "priority": 70,
+    "explanation_template": "Coolant has been in service for 3+ years and turned rust-colored, indicating silicate/organic acid rust inhibitor depletion.",
+    "recommended_action": "Flush cooling system with distilled water and radiator flush chemical, then refill with 50/50 mixture of specified long-life antifreeze.",
+    "preventive_maintenance": "Replace standard ethylene glycol coolant every 3 years; long-life OAT coolant every 5 years."
+  },
+  {
+    "rule_id": "MAINT_IGN_001",
+    "name": "Spark Plug Periodic Replacement Overdue",
+    "category": "maintenance",
+    "vehicle_applicability": {
+      "vehicle_types": ["any"],
+      "cooling_types": ["any"],
+      "fuel_types": ["petrol"]
+    },
+    "conditions": [
+      { "fact": "km_since_last_spark_plugs", "operator": ">=", "value": 30000.0 },
+      { "fact": "spark_plug_gap_eroded", "operator": "==", "value": true }
+    ],
+    "derived_facts": [],
+    "conclusion": {
+      "fault_id": "FAULT_MAINT_SPARK_PLUGS_DUE",
+      "title": "Spark Plugs Electrode Wear & Misfire Risk",
+      "is_final_diagnosis": true
+    },
+    "severity": "low",
+    "safety_critical": false,
+    "priority": 65,
+    "explanation_template": "Spark plugs have exceeded 30,000 km with widened center electrode gap, placing excessive electrical load on ignition coils.",
+    "recommended_action": "Replace complete set of spark plugs with vehicle manufacturer specified heat range plugs. Torque to spec with a calibrated torque wrench.",
+    "preventive_maintenance": "Inspect conventional copper spark plugs every 20,000 km; iridium/platinum plugs every 60,000-100,000 km."
+  },
+  {
+    "rule_id": "MAINT_TIMING_001",
+    "name": "Engine Timing Belt Age / Mileage Replacement Due",
+    "category": "maintenance",
+    "vehicle_applicability": {
+      "vehicle_types": ["car"],
+      "cooling_types": ["any"],
+      "fuel_types": ["petrol", "diesel"]
+    },
+    "conditions": [
+      { "fact": "timing_belt_km_elapsed", "operator": ">=", "value": 90000.0 },
+      { "fact": "timing_belt_surface_microcracks", "operator": "==", "value": true }
+    ],
+    "derived_facts": [
+      { "fact": "interference_engine_snap_risk", "value": true }
+    ],
+    "conclusion": {
+      "fault_id": "FAULT_MAINT_TIMING_BELT_CRITICAL",
+      "title": "Timing Belt Replacement Critically Overdue (Catastrophic Valve Clash Risk)",
+      "is_final_diagnosis": true
+    },
+    "severity": "critical",
+    "safety_critical": true,
+    "priority": 98,
+    "explanation_template": "Rubber timing belt has surpassed 90,000 km and exhibits back-rib microcracking. Belt snapping on an interference engine causes immediate piston-to-valve collision and total engine destruction.",
+    "recommended_action": "Do not delay. Replace timing belt, tensioner pulley, idler bearings, and water pump as a comprehensive kit immediately.",
+    "preventive_maintenance": "Replace timing belts strictly at 80,000-100,000 km or 5-7 years."
+  },
+  {
+    "rule_id": "MAINT_TYRE_001",
+    "name": "Tyre Tread Depth Below Legal Safety Threshold",
+    "category": "maintenance",
+    "vehicle_applicability": {
+      "vehicle_types": ["any"],
+      "cooling_types": ["any"],
+      "fuel_types": ["any"]
+    },
+    "conditions": [
+      { "fact": "tyre_tread_depth_mm", "operator": "<=", "value": 1.6 }
+    ],
+    "derived_facts": [
+      { "fact": "wet_hydroplaning_hazard", "value": true }
+    ],
+    "conclusion": {
+      "fault_id": "FAULT_MAINT_TYRE_BALD",
+      "title": "Tyre Tread Below 1.6mm Legal Limit (Hydroplaning Hazard)",
+      "is_final_diagnosis": true
+    },
+    "severity": "high",
+    "safety_critical": true,
+    "priority": 93,
+    "explanation_template": "Remaining tread depth is at or below the 1.6mm wear bar indicator, eliminating water evacuation channels and creating extreme hydroplaning hazard.",
+    "recommended_action": "Replace tyres immediately. Check alignment to prevent premature wear on new tyres.",
+    "preventive_maintenance": "Rotate tyres every 10,000 km and measure tread depths across inner, center, and outer grooves."
+  },
+  {
+    "rule_id": "MAINT_BELT_001",
+    "name": "Auxiliary Serpentine Belt Glazing and Cracking",
+    "category": "maintenance",
+    "vehicle_applicability": {
+      "vehicle_types": ["car"],
+      "cooling_types": ["any"],
+      "fuel_types": ["petrol", "diesel", "hybrid"]
+    },
+    "conditions": [
+      { "fact": "serpentine_belt_cracks_per_inch", "operator": ">=", "value": 3 },
+      { "fact": "belt_squealing_on_startup", "operator": "==", "value": true }
+    ],
+    "derived_facts": [],
+    "conclusion": {
+      "fault_id": "FAULT_MAINT_SERPENTINE_BELT_WORN",
+      "title": "Worn Serpentine Accessory Drive Belt",
+      "is_final_diagnosis": true
+    },
+    "severity": "medium",
+    "safety_critical": false,
+    "priority": 73,
+    "explanation_template": "Accessory serpentine belt has 3+ cracks per inch on inner ribs and squeals on cold start, indicating rubber dry-rot and tension loss.",
+    "recommended_action": "Replace serpentine drive belt and inspect automatic tensioner pulley bearing for smooth rotation.",
+    "preventive_maintenance": "Inspect serpentine belt for oil contamination and rib cracks every 30,000 km."
+  },
+  {
+    "rule_id": "MAINT_BATTERY_001",
+    "name": "Battery Terminal Heavy Sulfate Corrosion",
+    "category": "maintenance",
+    "vehicle_applicability": {
+      "vehicle_types": ["any"],
+      "cooling_types": ["any"],
+      "fuel_types": ["any"]
+    },
+    "conditions": [
+      { "fact": "battery_terminal_corrosion_white_blue", "operator": "==", "value": true }
+    ],
+    "derived_facts": [
+      { "fact": "terminal_contact_resistance_high", "value": true }
+    ],
+    "conclusion": {
+      "fault_id": "FAULT_MAINT_BATTERY_TERMINAL_OXIDATION",
+      "title": "Corroded Battery Terminals & High Contact Resistance",
+      "is_final_diagnosis": true
+    },
+    "severity": "low",
+    "safety_critical": false,
+    "priority": 60,
+    "explanation_template": "Heavy white or bluish copper sulfate crystal growth around battery posts increases circuit electrical resistance.",
+    "recommended_action": "Disconnect terminals (negative first). Clean posts and cable clamps with baking soda solution and wire brush. Reinstall and coat with dielectric grease.",
+    "preventive_maintenance": "Apply anti-corrosion protective washers and grease to battery terminals annually."
+  },
+  {
+    "rule_id": "MAINT_TRANS_001",
+    "name": "Manual Transmission Gear Oil Replacement Due",
+    "category": "maintenance",
+    "vehicle_applicability": {
+      "vehicle_types": ["any"],
+      "cooling_types": ["any"],
+      "fuel_types": ["petrol", "diesel"]
+    },
+    "conditions": [
+      { "fact": "km_since_last_gear_oil", "operator": ">=", "value": 50000.0 },
+      { "fact": "gear_lever_stiff_when_cold", "operator": "==", "value": true }
+    ],
+    "derived_facts": [],
+    "conclusion": {
+      "fault_id": "FAULT_MAINT_GEAR_OIL_DUE",
+      "title": "Degraded Manual Gearbox / Final Drive Hypoid Oil",
+      "is_final_diagnosis": true
+    },
+    "severity": "low",
+    "safety_critical": false,
+    "priority": 66,
+    "explanation_template": "Manual transmission gear oil has exceeded 50,000 km with increased shift lever stiffness in cold weather.",
+    "recommended_action": "Drain gear oil, inspect drain plug magnet for metal filings, and refill with specified GL-4 or GL-5 hypoid gear oil.",
+    "preventive_maintenance": "Check gearbox oil level at every major scheduled service."
+  },
+  {
+    "rule_id": "MAINT_SHOCK_001",
+    "name": "Shock Absorber Hydraulic Fluid Seepage",
+    "category": "maintenance",
+    "vehicle_applicability": {
+      "vehicle_types": ["any"],
+      "cooling_types": ["any"],
+      "fuel_types": ["any"]
+    },
+    "conditions": [
+      { "fact": "shock_absorber_oil_wetness", "operator": "==", "value": true },
+      { "fact": "vehicle_excessive_bounce_after_bump", "operator": "==", "value": true }
+    ],
+    "derived_facts": [
+      { "fact": "suspension_damping_compromised", "value": true }
+    ],
+    "conclusion": {
+      "fault_id": "FAULT_MAINT_WORN_SHOCK_ABSORBERS",
+      "title": "Blown Shock Absorber / Strut Hydraulic Seal",
+      "is_final_diagnosis": true
+    },
+    "severity": "medium",
+    "safety_critical": false,
+    "priority": 77,
+    "explanation_template": "Visible hydraulic oil film on shock absorber damper body accompanied by multiple oscillation bounces after hitting bumps.",
+    "recommended_action": "Replace shock absorbers or struts in axle pairs (both front or both rear) to maintain balanced handling.",
+    "preventive_maintenance": "Perform bounce test and visual fluid check on dampers every 20,000 km."
+  },
+  {
+    "rule_id": "MAINT_CABIN_001",
+    "name": "Cabin HVAC Air Filter Dust & Pollen Clogged",
+    "category": "maintenance",
+    "vehicle_applicability": {
+      "vehicle_types": ["car"],
+      "cooling_types": ["any"],
+      "fuel_types": ["any"]
+    },
+    "conditions": [
+      { "fact": "ac_airflow_weak", "operator": "==", "value": true },
+      { "fact": "musty_odor_from_vents", "operator": "==", "value": true }
+    ],
+    "derived_facts": [],
+    "conclusion": {
+      "fault_id": "FAULT_MAINT_CABIN_FILTER_CLOGGED",
+      "title": "Clogged Cabin HVAC Air Microfilter",
+      "is_final_diagnosis": true
+    },
+    "severity": "low",
+    "safety_critical": false,
+    "priority": 55,
+    "explanation_template": "Reduced air volume from dashboard vents accompanied by stale moldy odor caused by saturated cabin pollen filter.",
+    "recommended_action": "Remove glovebox or cowl access panel and replace cabin air filter with activated carbon filter.",
+    "preventive_maintenance": "Replace cabin filter every 15,000 km or 12 months."
+  },
+  {
+    "rule_id": "MAINT_WHEEL_001",
+    "name": "Wheel Lug Nut Torque Inspection Alert",
+    "category": "maintenance",
+    "vehicle_applicability": {
+      "vehicle_types": ["car"],
+      "cooling_types": ["any"],
+      "fuel_types": ["any"]
+    },
+    "conditions": [
+      { "fact": "recent_wheel_service_km", "operator": "<=", "value": 100.0 },
+      { "fact": "lug_nuts_retorque_not_done", "operator": "==", "value": true }
+    ],
+    "derived_facts": [
+      { "fact": "wheel_separation_hazard", "value": true }
+    ],
+    "conclusion": {
+      "fault_id": "FAULT_MAINT_RETORQUE_LUG_NUTS",
+      "title": "Post-Service Wheel Lug Nut Retorque Required",
+      "is_final_diagnosis": true
+    },
+    "severity": "high",
+    "safety_critical": true,
+    "priority": 95,
+    "explanation_template": "Wheels were removed or replaced within the last 100 km and lug nuts have not been retorqued. Settlement of alloy wheels can cause nuts to back off.",
+    "recommended_action": "Use a calibrated torque wrench in a crisscross star pattern to torque all wheel nuts to factory spec (typically 100-140 Nm).",
+    "preventive_maintenance": "Always retorque wheel lug fasteners 50-100 km following tyre installation."
+  },
+  {
+    "rule_id": "MAINT_EXHAUST_001",
+    "name": "Exhaust System Muffler Corrosion & Perforation",
+    "category": "maintenance",
+    "vehicle_applicability": {
+      "vehicle_types": ["any"],
+      "cooling_types": ["any"],
+      "fuel_types": ["petrol", "diesel", "hybrid"]
+    },
+    "conditions": [
+      { "fact": "exhaust_noise_excessive_booming", "operator": "==", "value": true },
+      { "fact": "visible_muffler_rust_hole", "operator": "==", "value": true }
+    ],
+    "derived_facts": [],
+    "conclusion": {
+      "fault_id": "FAULT_MAINT_EXHAUST_PERFORATION",
+      "title": "Perforated Exhaust Muffler / Tailpipe Corrosion Hole",
+      "is_final_diagnosis": true
+    },
+    "severity": "medium",
+    "safety_critical": false,
+    "priority": 68,
+    "explanation_template": "Loud rumbling or buzzing exhaust note caused by road salt and acidic condensation rusting through outer muffler skin.",
+    "recommended_action": "Weld repair or replace damaged muffler section and inspect exhaust rubber hanger donuts.",
+    "preventive_maintenance": "Wash underbody to remove road salt during winter months."
+  },
+  {
+    "rule_id": "MAINT_STEER_001",
+    "name": "Power Steering Hydraulic Fluid Oxidation",
+    "category": "maintenance",
+    "vehicle_applicability": {
+      "vehicle_types": ["car"],
+      "cooling_types": ["any"],
+      "fuel_types": ["petrol", "diesel"]
+    },
+    "conditions": [
+      { "fact": "power_steering_fluid_dark_brown", "operator": "==", "value": true },
+      { "fact": "steering_whining_noise_on_full_lock", "operator": "==", "value": true }
+    ],
+    "derived_facts": [],
+    "conclusion": {
+      "fault_id": "FAULT_MAINT_POWER_STEERING_FLUID",
+      "title": "Oxidized Power Steering Hydraulic Fluid & Pump Cavitation",
+      "is_final_diagnosis": true
+    },
+    "severity": "medium",
+    "safety_critical": false,
+    "priority": 71,
+    "explanation_template": "Hydraulic power steering fluid has turned dark brown/black with burnt smell, causing pump whining and vane wear.",
+    "recommended_action": "Siphon reservoir, flush power steering fluid with manufacturer-approved fluid (ATF or Pentosin), and bleed air by turning lock-to-lock.",
+    "preventive_maintenance": "Flush power steering fluid every 60,000 km."
+  },
+  {
+    "rule_id": "MAINT_WIPER_001",
+    "name": "Windscreen Wiper Blade Rubber Streaking",
+    "category": "maintenance",
+    "vehicle_applicability": {
+      "vehicle_types": ["car"],
+      "cooling_types": ["any"],
+      "fuel_types": ["any"]
+    },
+    "conditions": [
+      { "fact": "wiper_blades_streaking_chattering", "operator": "==", "value": true }
+    ],
+    "derived_facts": [],
+    "conclusion": {
+      "fault_id": "FAULT_MAINT_WIPER_BLADES",
+      "title": "Worn or Torn Windscreen Wiper Blade Squeegees",
+      "is_final_diagnosis": true
+    },
+    "severity": "low",
+    "safety_critical": false,
+    "priority": 50,
+    "explanation_template": "Wiper rubber has hardened from UV exposure, leaving water streaks and chattering across the glass during rain.",
+    "recommended_action": "Replace driver and passenger windscreen wiper blade assemblies.",
+    "preventive_maintenance": "Clean wiper rubber with rubbing alcohol and replace annually before the wet season."
+  }
+]

@@ -1,0 +1,136 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "AutoExpertRuleSchema",
+  "description": "Validation schema for AutoExpert vehicle mechanic knowledge base rules",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "required": [
+      "rule_id",
+      "name",
+      "category",
+      "vehicle_applicability",
+      "conditions",
+      "severity",
+      "safety_critical",
+      "priority",
+      "explanation_template",
+      "recommended_action",
+      "preventive_maintenance"
+    ],
+    "properties": {
+      "rule_id": {
+        "type": "string",
+        "pattern": "^[A-Z0-9_]+$"
+      },
+      "name": {
+        "type": "string",
+        "minLength": 3
+      },
+      "category": {
+        "type": "string",
+        "enum": [
+          "engine",
+          "electrical",
+          "transmission",
+          "brakes",
+          "cooling_lubrication",
+          "suspension_tyres",
+          "fuel_system",
+          "maintenance"
+        ]
+      },
+      "vehicle_applicability": {
+        "type": "object",
+        "required": ["vehicle_types", "cooling_types", "fuel_types"],
+        "properties": {
+          "vehicle_types": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": ["motorcycle", "car", "any"]
+            }
+          },
+          "cooling_types": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": ["air_cooled", "liquid_cooled", "oil_cooled", "any"]
+            }
+          },
+          "fuel_types": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": ["petrol", "diesel", "hybrid", "electric", "any"]
+            }
+          }
+        }
+      },
+      "conditions": {
+        "type": "array",
+        "minItems": 1,
+        "items": {
+          "type": "object",
+          "required": ["fact", "operator", "value"],
+          "properties": {
+            "fact": { "type": "string" },
+            "operator": {
+              "type": "string",
+              "enum": ["==", "!=", "<", "<=", ">", ">=", "in", "not_in"]
+            },
+            "value": {}
+          }
+        }
+      },
+      "derived_facts": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": ["fact", "value"],
+          "properties": {
+            "fact": { "type": "string" },
+            "value": {}
+          }
+        }
+      },
+      "conclusion": {
+        "oneOf": [
+          { "type": "null" },
+          {
+            "type": "object",
+            "required": ["fault_id", "title", "is_final_diagnosis"],
+            "properties": {
+              "fault_id": { "type": "string" },
+              "title": { "type": "string" },
+              "is_final_diagnosis": { "type": "boolean" }
+            }
+          }
+        ]
+      },
+      "severity": {
+        "type": "string",
+        "enum": ["low", "medium", "high", "critical"]
+      },
+      "safety_critical": {
+        "type": "boolean"
+      },
+      "priority": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 100
+      },
+      "explanation_template": {
+        "type": "string",
+        "minLength": 5
+      },
+      "recommended_action": {
+        "type": "string",
+        "minLength": 5
+      },
+      "preventive_maintenance": {
+        "type": "string"
+      }
+    }
+  }
+}
