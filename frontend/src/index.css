@@ -3,71 +3,95 @@
 @tailwind utilities;
 
 @layer base {
-  * {
-    border-radius: 0 !important;
-  }
-
   body {
-    @apply bg-background text-[#EAEAEA] antialiased selection:bg-primary selection:text-white;
+    @apply bg-background text-foreground antialiased selection:bg-hack-orange selection:text-black;
+    font-family: 'Space Grotesk', system-ui, sans-serif;
+    background-color: #13111C;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Space Grotesk', system-ui, sans-serif;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+  }
+
+  code, pre, .font-mono {
     font-family: 'JetBrains Mono', 'Space Mono', Consolas, monospace;
-    background-color: #0A0A0A;
   }
 }
 
-/* Simulated CRT Scanline Filter */
-body::before {
-  content: " ";
-  display: block;
-  position: fixed;
-  top: 0;
-  left: 0;
-  bottom: 0;
-  right: 0;
-  background: repeating-linear-gradient(
-    0deg,
-    rgba(0, 0, 0, 0.18),
-    rgba(0, 0, 0, 0.18) 1px,
-    transparent 1px,
-    transparent 2px
-  );
-  z-index: 9999;
-  pointer-events: none;
-  opacity: 0.55;
+/* Retro Matrix Dot Canvas (Hacktoberfest signature texture) */
+.retro-dots {
+  background-image: radial-gradient(rgba(255, 255, 255, 0.12) 1px, transparent 1px);
+  background-size: 20px 20px;
 }
 
-/* Mechanical Brutalist Scrollbar */
+/* Hacktoberfest Neo-Brutalist Scrollbar */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 8px;
+  height: 8px;
 }
 ::-webkit-scrollbar-track {
-  background: #0A0A0A;
+  background: #13111C;
+  border-left: 2px solid #000000;
 }
 ::-webkit-scrollbar-thumb {
-  background: #262626;
-  border: 1px solid #1E1E1E;
+  background: #FF7844;
+  border: 2px solid #000000;
+  box-shadow: 1px 1px 0px #000000;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #E61919;
+  background: #FED156;
 }
 
-/* Industrial Utility Patterns */
-.blueprint-grid {
-  display: grid;
-  gap: 1px;
-  background-color: #262626;
+/* Neo-Brutalist Box / Card Classes */
+.neo-box {
+  @apply border-2 border-black bg-[#1E1A29] shadow-[4px_4px_0px_#000000];
 }
 
-.hazard-stripes {
-  background: repeating-linear-gradient(
-    -45deg,
-    #E61919,
-    #E61919 12px,
-    #121212 12px,
-    #121212 24px
-  );
+.neo-box-hover {
+  @apply border-2 border-black bg-[#1E1A29] shadow-[4px_4px_0px_#000000] transition-all duration-150 hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[6px_6px_0px_#000000];
 }
 
-.telemetry-tag {
-  @apply font-mono text-[10px] uppercase tracking-widest px-2 py-0.5 border border-[#333333] bg-[#121212] text-[#EAEAEA];
+/* Tactile Neo-Brutalist Push-Down Buttons */
+.neo-btn-primary {
+  @apply inline-flex items-center justify-center gap-2 px-4 py-2 bg-[#FF7844] hover:bg-[#FF8800] text-black font-bold uppercase tracking-wider text-xs border-2 border-black shadow-[3px_3px_0px_#000000] transition-all duration-150 hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[5px_5px_0px_#000000] active:translate-x-0.5 active:translate-y-0.5 active:shadow-[1px_1px_0px_#000000] disabled:opacity-50 disabled:pointer-events-none;
+}
+
+.neo-btn-secondary {
+  @apply inline-flex items-center justify-center gap-2 px-4 py-2 bg-[#FED156] hover:bg-[#FFE279] text-black font-bold uppercase tracking-wider text-xs border-2 border-black shadow-[3px_3px_0px_#000000] transition-all duration-150 hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[5px_5px_0px_#000000] active:translate-x-0.5 active:translate-y-0.5 active:shadow-[1px_1px_0px_#000000] disabled:opacity-50 disabled:pointer-events-none;
+}
+
+.neo-btn-magenta {
+  @apply inline-flex items-center justify-center gap-2 px-4 py-2 bg-[#FF4785] hover:bg-[#FF3E6C] text-white font-bold uppercase tracking-wider text-xs border-2 border-black shadow-[3px_3px_0px_#000000] transition-all duration-150 hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[5px_5px_0px_#000000] active:translate-x-0.5 active:translate-y-0.5 active:shadow-[1px_1px_0px_#000000] disabled:opacity-50 disabled:pointer-events-none;
+}
+
+.neo-btn-mint {
+  @apply inline-flex items-center justify-center gap-2 px-4 py-2 bg-[#49D49D] hover:bg-[#2DE1C2] text-black font-bold uppercase tracking-wider text-xs border-2 border-black shadow-[3px_3px_0px_#000000] transition-all duration-150 hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[5px_5px_0px_#000000] active:translate-x-0.5 active:translate-y-0.5 active:shadow-[1px_1px_0px_#000000] disabled:opacity-50 disabled:pointer-events-none;
+}
+
+/* Retro-Tech Badges & Stickers */
+.neo-badge-orange {
+  @apply inline-flex items-center gap-1.5 px-2 py-0.5 bg-[#FF7844] text-black border-2 border-black font-mono font-bold text-[11px] uppercase shadow-[2px_2px_0px_#000000];
+}
+
+.neo-badge-mint {
+  @apply inline-flex items-center gap-1.5 px-2 py-0.5 bg-[#49D49D] text-black border-2 border-black font-mono font-bold text-[11px] uppercase shadow-[2px_2px_0px_#000000];
+}
+
+.neo-badge-yellow {
+  @apply inline-flex items-center gap-1.5 px-2 py-0.5 bg-[#FED156] text-black border-2 border-black font-mono font-bold text-[11px] uppercase shadow-[2px_2px_0px_#000000];
+}
+
+.neo-badge-magenta {
+  @apply inline-flex items-center gap-1.5 px-2 py-0.5 bg-[#FF4785] text-white border-2 border-black font-mono font-bold text-[11px] uppercase shadow-[2px_2px_0px_#000000];
+}
+
+.neo-badge-neutral {
+  @apply inline-flex items-center gap-1.5 px-2 py-0.5 bg-[#262135] text-neutral-200 border-2 border-black font-mono font-bold text-[11px] uppercase shadow-[2px_2px_0px_#000000];
+}
+
+/* Form Inputs */
+.neo-input {
+  @apply bg-[#13111C] border-2 border-black text-[#FFFDF9] font-mono text-xs px-3 py-2.5 shadow-[2px_2px_0px_#000000] focus:border-[#FF7844] focus:outline-none transition-all;
 }

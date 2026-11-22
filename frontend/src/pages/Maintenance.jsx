@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Wrench, Plus, AlertCircle, CheckCircle2, Clock } from 'lucide-react';
+import { Wrench, Plus, AlertCircle, CheckCircle2, Clock, Sparkles } from 'lucide-react';
 import { api } from '../services/api';
 
 export default function Maintenance() {
@@ -77,17 +77,17 @@ export default function Maintenance() {
   };
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto font-mono">
+    <div className="space-y-6 max-w-7xl mx-auto">
       {/* Tactical Header */}
-      <div className="flex flex-wrap items-center justify-between gap-4 border-b border-[#262626] pb-4">
+      <div className="flex flex-wrap items-center justify-between gap-4 border-b-2 border-black pb-4">
         <div>
-          <span className="text-[10px] text-[#E61919] uppercase tracking-widest block mb-1">
-            &lt; PREVENTIVE_LIFECYCLE // SERVICE_LOGGER &gt;
+          <span className="inline-block bg-[#FF7844] text-black border-2 border-black font-black text-[10px] px-2.5 py-0.5 uppercase shadow-[2px_2px_0px_#000000] -rotate-1 mb-2 font-mono">
+            ★ PREVENTIVE_LIFECYCLE // SERVICE_LOGGER ★
           </span>
-          <h2 className="text-xl font-black text-[#EAEAEA] uppercase tracking-tight font-mono">
-            [ PREVENTIVE_MAINTENANCE // LIFECYCLE_MONITOR ]
+          <h2 className="text-xl font-black text-white uppercase tracking-tight font-sans">
+            PREVENTIVE MAINTENANCE // LIFECYCLE MONITOR
           </h2>
-          <p className="text-xs text-neutral-400 mt-0.5 uppercase tracking-wide">
+          <p className="text-xs text-neutral-300 mt-0.5 uppercase tracking-wide font-mono">
             LOG SERVICE MILESTONES, CALIBRATE COMPONENT INTERVALS &amp; INTERCEPT OVERDUE WEAR.
           </p>
         </div>
@@ -96,7 +96,7 @@ export default function Maintenance() {
             <select
               value={selectedVehicleId}
               onChange={(e) => setSelectedVehicleId(e.target.value)}
-              className="bg-[#0A0A0A] border border-[#333333] text-xs font-mono uppercase text-[#EAEAEA] rounded-none px-3 py-2 focus:outline-none"
+              className="bg-[#1E1A29] border-2 border-black text-xs font-mono uppercase font-bold text-white px-3 py-2 shadow-[2px_2px_0px_#000000] focus:shadow-[4px_4px_0px_#FF7844] focus:outline-none cursor-pointer"
             >
               {vehicles.map((v) => (
                 <option key={v.id} value={v.id}>
@@ -107,7 +107,7 @@ export default function Maintenance() {
           )}
           <button
             onClick={() => setShowModal(true)}
-            className="px-4 py-2 bg-[#E61919] hover:bg-[#FF2A2A] text-white text-xs font-mono font-bold uppercase tracking-wider rounded-none border border-[#E61919] flex items-center gap-2 transition"
+            className="px-4 py-2 bg-[#FF7844] hover:bg-[#FF8800] text-black text-xs font-mono font-black uppercase tracking-wider border-2 border-black shadow-[3px_3px_0px_#000000] hover:-translate-x-0.5 hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5 active:shadow-none transition-all flex items-center gap-2"
           >
             <Plus className="w-4 h-4" />
             <span>[ LOG_SERVICE_ENTRY ]</span>
@@ -117,16 +117,18 @@ export default function Maintenance() {
 
       {/* Due Alerts Section */}
       {dueAlerts.length > 0 && (
-        <div className="p-4 bg-black border-2 border-[#E61919] rounded-none space-y-2 font-mono">
-          <div className="flex items-center gap-2 text-[#E61919] font-black text-xs uppercase tracking-widest">
-            <AlertCircle className="w-4 h-4 text-[#E61919]" />
-            <span>[ !!! CRITICAL_SERVICE_MILESTONES_OVERDUE ({dueAlerts.length}) !!! ]</span>
+        <div className="p-5 bg-[#2C131D] border-3 border-black shadow-[6px_6px_0px_#FF4785] space-y-3 font-mono">
+          <div className="flex items-center gap-2">
+            <span className="bg-[#FF4785] text-white font-black px-3 py-1 border-2 border-black shadow-[2px_2px_0px_#000000] -rotate-1 text-xs inline-flex items-center gap-1.5 uppercase font-mono">
+              <AlertCircle className="w-4 h-4" />
+              [ !!! CRITICAL_SERVICE_MILESTONES_OVERDUE ({dueAlerts.length}) !!! ]
+            </span>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-2">
             {dueAlerts.map((d, i) => (
-              <div key={i} className="p-3 bg-[#121212] border border-[#E61919]/50 rounded-none text-xs">
-                <div className="font-black text-[#EAEAEA] uppercase">{d.item_type}</div>
-                <div className="text-neutral-400 text-[10px] uppercase mt-0.5 font-bold">
+              <div key={i} className="p-3.5 bg-[#13111C] border-2 border-black shadow-[2px_2px_0px_#000000] text-xs font-mono">
+                <div className="font-black text-white uppercase font-sans text-sm">{d.item_type}</div>
+                <div className="text-[#FED156] text-[10px] uppercase mt-1 font-bold">
                   NEXT_DUE: {d.next_due_km ? `${d.next_due_km.toLocaleString()} KM` : d.next_due_date}
                 </div>
               </div>
@@ -138,18 +140,18 @@ export default function Maintenance() {
       {/* Grid: Records Timeline & Upcoming Reminders */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Service Records Table */}
-        <div className="lg:col-span-2 bg-[#121212] border border-[#262626] rounded-none p-5 space-y-4 font-mono">
-          <h3 className="text-xs font-black text-neutral-300 uppercase tracking-widest flex items-center gap-2 border-b border-[#262626] pb-3">
-            <Wrench className="w-4 h-4 text-[#E61919]" />
+        <div className="lg:col-span-2 bg-[#1E1A29] border-3 border-black p-5 space-y-4 font-mono shadow-[4px_4px_0px_#000000]">
+          <h3 className="text-xs font-black text-white uppercase tracking-widest flex items-center gap-2 border-b-2 border-black pb-3 font-mono">
+            <Wrench className="w-4 h-4 text-[#FF7844]" />
             <span>[ COMPLETED_SERVICE_HISTORY // COUNT: {records.length} ]</span>
           </h3>
 
           {loading ? (
-            <div className="text-center py-8 text-xs text-neutral-500 uppercase tracking-widest">
+            <div className="text-center py-8 text-xs text-neutral-400 uppercase tracking-widest font-mono">
               /// RETRIEVING SERVICE RECORDS... ///
             </div>
           ) : records.length === 0 ? (
-            <div className="text-center py-10 text-xs text-neutral-500 uppercase tracking-wider">
+            <div className="text-center py-10 text-xs text-neutral-400 uppercase tracking-wider font-mono">
               /// NO MAINTENANCE RECORDS LOGGED FOR THIS VEHICLE UNIT ///
             </div>
           ) : (
@@ -157,24 +159,24 @@ export default function Maintenance() {
               {records.map((r) => (
                 <div
                   key={r.id}
-                  className="p-4 bg-[#0A0A0A] border border-[#262626] rounded-none flex items-start justify-between gap-4 font-mono"
+                  className="p-4 bg-[#13111C] border-2 border-black shadow-[3px_3px_0px_#000000] flex items-start justify-between gap-4 font-mono hover:shadow-[5px_5px_0px_#000000] hover:-translate-x-0.5 hover:-translate-y-0.5 transition-all"
                 >
                   <div className="space-y-1">
-                    <h4 className="text-sm font-black text-[#EAEAEA] uppercase">{r.item_type}</h4>
-                    <div className="text-[11px] text-neutral-400 flex items-center gap-3 uppercase">
+                    <h4 className="text-sm font-black text-white uppercase font-sans">{r.item_type}</h4>
+                    <div className="text-[11px] text-neutral-300 flex items-center gap-3 uppercase font-mono">
                       <span>DATE: {r.service_date}</span>
                       <span>&bull;</span>
-                      <span className="font-mono text-neutral-300 font-bold">
+                      <span className="font-mono text-[#49D49D] font-bold">
                         ODOMETER: {r.odometer_km?.toLocaleString()} KM
                       </span>
                     </div>
                     {r.notes && (
-                      <p className="text-xs text-neutral-400 italic pt-1">
+                      <p className="text-xs text-neutral-300 italic pt-1 font-mono">
                         "{r.notes}"
                       </p>
                     )}
                   </div>
-                  <CheckCircle2 className="w-5 h-5 text-[#4AF626] shrink-0" />
+                  <CheckCircle2 className="w-5 h-5 text-[#49D49D] shrink-0" />
                 </div>
               ))}
             </div>
@@ -182,30 +184,30 @@ export default function Maintenance() {
         </div>
 
         {/* Reminders Card */}
-        <div className="bg-[#121212] border border-[#262626] rounded-none p-5 space-y-4 h-fit font-mono">
-          <h3 className="text-xs font-black text-neutral-300 uppercase tracking-widest flex items-center gap-2 border-b border-[#262626] pb-3">
-            <Clock className="w-4 h-4 text-cyan-400" />
+        <div className="bg-[#1E1A29] border-3 border-black p-5 space-y-4 h-fit font-mono shadow-[4px_4px_0px_#000000]">
+          <h3 className="text-xs font-black text-white uppercase tracking-widest flex items-center gap-2 border-b-2 border-black pb-3 font-mono">
+            <Clock className="w-4 h-4 text-[#FED156]" />
             <span>[ ACTIVE_SERVICE_INTERVALS // COUNT: {reminders.length} ]</span>
           </h3>
 
           {reminders.length === 0 ? (
-            <div className="text-xs text-neutral-500 uppercase tracking-wider italic py-4">
+            <div className="text-xs text-neutral-400 uppercase tracking-wider italic py-4 font-mono">
               /// NO ACTIVE INTERVALS CONFIGURED ///
             </div>
           ) : (
             <div className="space-y-2.5">
               {reminders.map((rem) => (
-                <div key={rem.id} className="p-3 bg-[#0A0A0A] border border-[#262626] rounded-none text-xs space-y-1">
-                  <div className="font-black text-[#EAEAEA] uppercase">{rem.item_type}</div>
-                  <div className="text-[10px] text-neutral-400 flex justify-between uppercase">
+                <div key={rem.id} className="p-3 bg-[#13111C] border-2 border-black shadow-[2px_2px_0px_#000000] text-xs space-y-1 font-mono">
+                  <div className="font-black text-white uppercase font-sans">{rem.item_type}</div>
+                  <div className="text-[10px] text-neutral-300 flex justify-between uppercase font-mono">
                     <span>INTERVAL:</span>
-                    <span className="font-bold text-neutral-300">
+                    <span className="font-bold text-[#49D49D]">
                       {rem.interval_km ? `${rem.interval_km.toLocaleString()} KM` : `${rem.interval_days} DAYS`}
                     </span>
                   </div>
-                  <div className="text-[10px] text-neutral-400 flex justify-between uppercase">
+                  <div className="text-[10px] text-neutral-300 flex justify-between uppercase font-mono">
                     <span>STATUS:</span>
-                    <span className="font-bold text-[#E61919]">[ {rem.status.toUpperCase()} ]</span>
+                    <span className="font-black text-[#FF7844]">[ {rem.status.toUpperCase()} ]</span>
                   </div>
                 </div>
               ))}
@@ -217,17 +219,17 @@ export default function Maintenance() {
       {/* Log Service Modal */}
       {showModal && (
         <div className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4">
-          <div className="bg-[#121212] border-2 border-[#E61919] rounded-none max-w-md w-full p-6 shadow-none font-mono">
-            <h3 className="text-sm font-black text-[#EAEAEA] uppercase tracking-widest mb-1">
+          <div className="bg-[#1E1A29] border-3 border-black max-w-md w-full p-6 shadow-[8px_8px_0px_#FF7844] font-mono">
+            <h3 className="text-sm font-black text-white uppercase tracking-widest mb-1 font-sans">
               [ LOG_SERVICE_COMPLETION_RECORD ]
             </h3>
-            <p className="text-[11px] text-neutral-400 uppercase tracking-wide mb-5">
+            <p className="text-[11px] text-neutral-300 uppercase tracking-wide mb-5 font-mono">
               RECORD SERVICE EVENT &amp; AUTO-SCHEDULE SUBSEQUENT LIFECYCLE MILESTONE.
             </p>
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="text-[10px] text-neutral-400 uppercase tracking-wider block mb-1">
+                <label className="text-[10px] text-neutral-300 uppercase tracking-wider block mb-1 font-mono">
                   // SERVICE_ITEM:
                 </label>
                 <input
@@ -235,13 +237,13 @@ export default function Maintenance() {
                   required
                   value={formData.item_type}
                   onChange={(e) => setFormData({ ...formData, item_type: e.target.value })}
-                  className="w-full bg-[#0A0A0A] border border-[#333333] rounded-none p-2 text-xs text-[#EAEAEA] font-mono uppercase focus:border-[#E61919] focus:outline-none"
+                  className="w-full bg-[#13111C] border-2 border-black p-2.5 text-xs text-white font-mono uppercase font-bold shadow-[2px_2px_0px_#000000] focus:shadow-[4px_4px_0px_#FF7844] focus:outline-none"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="text-[10px] text-neutral-400 uppercase tracking-wider block mb-1">
+                  <label className="text-[10px] text-neutral-300 uppercase tracking-wider block mb-1 font-mono">
                     // DATE:
                   </label>
                   <input
@@ -249,11 +251,11 @@ export default function Maintenance() {
                     required
                     value={formData.service_date}
                     onChange={(e) => setFormData({ ...formData, service_date: e.target.value })}
-                    className="w-full bg-[#0A0A0A] border border-[#333333] rounded-none p-2 text-xs text-[#EAEAEA] font-mono uppercase focus:border-[#E61919] focus:outline-none"
+                    className="w-full bg-[#13111C] border-2 border-black p-2.5 text-xs text-white font-mono uppercase font-bold shadow-[2px_2px_0px_#000000] focus:shadow-[4px_4px_0px_#FF7844] focus:outline-none"
                   />
                 </div>
                 <div>
-                  <label className="text-[10px] text-neutral-400 uppercase tracking-wider block mb-1">
+                  <label className="text-[10px] text-neutral-300 uppercase tracking-wider block mb-1 font-mono">
                     // ODOMETER (KM):
                   </label>
                   <input
@@ -262,38 +264,38 @@ export default function Maintenance() {
                     placeholder="E.G. 45000"
                     value={formData.odometer_km}
                     onChange={(e) => setFormData({ ...formData, odometer_km: e.target.value })}
-                    className="w-full bg-[#0A0A0A] border border-[#333333] rounded-none p-2 text-xs text-[#EAEAEA] font-mono uppercase focus:border-[#E61919] focus:outline-none"
+                    className="w-full bg-[#13111C] border-2 border-black p-2.5 text-xs text-white font-mono uppercase font-bold shadow-[2px_2px_0px_#000000] focus:shadow-[4px_4px_0px_#FF7844] focus:outline-none"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="text-[10px] text-neutral-400 uppercase tracking-wider block mb-1">
+                  <label className="text-[10px] text-neutral-300 uppercase tracking-wider block mb-1 font-mono">
                     // NEXT_INTERVAL (KM):
                   </label>
                   <input
                     type="number"
                     value={formData.interval_km}
                     onChange={(e) => setFormData({ ...formData, interval_km: e.target.value })}
-                    className="w-full bg-[#0A0A0A] border border-[#333333] rounded-none p-2 text-xs text-[#EAEAEA] font-mono uppercase focus:border-[#E61919] focus:outline-none"
+                    className="w-full bg-[#13111C] border-2 border-black p-2.5 text-xs text-white font-mono uppercase font-bold shadow-[2px_2px_0px_#000000] focus:shadow-[4px_4px_0px_#FF7844] focus:outline-none"
                   />
                 </div>
                 <div>
-                  <label className="text-[10px] text-neutral-400 uppercase tracking-wider block mb-1">
+                  <label className="text-[10px] text-neutral-300 uppercase tracking-wider block mb-1 font-mono">
                     // NEXT_INTERVAL (DAYS):
                   </label>
                   <input
                     type="number"
                     value={formData.interval_days}
                     onChange={(e) => setFormData({ ...formData, interval_days: e.target.value })}
-                    className="w-full bg-[#0A0A0A] border border-[#333333] rounded-none p-2 text-xs text-[#EAEAEA] font-mono uppercase focus:border-[#E61919] focus:outline-none"
+                    className="w-full bg-[#13111C] border-2 border-black p-2.5 text-xs text-white font-mono uppercase font-bold shadow-[2px_2px_0px_#000000] focus:shadow-[4px_4px_0px_#FF7844] focus:outline-none"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="text-[10px] text-neutral-400 uppercase tracking-wider block mb-1">
+                <label className="text-[10px] text-neutral-300 uppercase tracking-wider block mb-1 font-mono">
                   // TECHNICIAN_NOTES:
                 </label>
                 <textarea
@@ -301,21 +303,21 @@ export default function Maintenance() {
                   placeholder="E.G. REPLACED FLUID WITH 5W-30 SYNTHETIC, INSPECTED BELTS"
                   value={formData.notes}
                   onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                  className="w-full bg-[#0A0A0A] border border-[#333333] rounded-none p-2 text-xs text-[#EAEAEA] font-mono uppercase focus:border-[#E61919] focus:outline-none"
+                  className="w-full bg-[#13111C] border-2 border-black p-2.5 text-xs text-white font-mono uppercase font-bold shadow-[2px_2px_0px_#000000] focus:shadow-[4px_4px_0px_#FF7844] focus:outline-none"
                 />
               </div>
 
-              <div className="flex justify-end gap-3 pt-3 border-t border-[#262626]">
+              <div className="flex justify-end gap-3 pt-3 border-t-2 border-black">
                 <button
                   type="button"
                   onClick={() => setShowModal(false)}
-                  className="px-4 py-2 bg-[#0A0A0A] hover:bg-neutral-900 border border-[#333333] text-neutral-300 font-mono text-xs uppercase rounded-none"
+                  className="px-4 py-2 bg-[#161320] hover:bg-[#262135] border-2 border-black text-neutral-200 font-mono text-xs uppercase shadow-[2px_2px_0px_#000000] transition-all"
                 >
                   [ CANCEL ]
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-[#E61919] hover:bg-[#FF2A2A] text-white font-mono text-xs font-bold uppercase tracking-wider rounded-none border border-[#E61919]"
+                  className="px-4 py-2 bg-[#49D49D] hover:bg-[#2DE1C2] text-black font-mono text-xs font-black uppercase tracking-wider border-2 border-black shadow-[3px_3px_0px_#000000] hover:-translate-x-0.5 hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5 active:shadow-none transition-all"
                 >
                   [ RECORD_SERVICE ]
                 </button>

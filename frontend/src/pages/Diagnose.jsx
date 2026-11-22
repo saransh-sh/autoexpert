@@ -9,6 +9,7 @@ import {
   RotateCcw,
   Activity,
   Layers,
+  Sparkles,
 } from 'lucide-react';
 import { api } from '../services/api';
 import SafetyBanner from '../components/SafetyBanner';
@@ -139,24 +140,24 @@ export default function Diagnose() {
   };
 
   return (
-    <div className="space-y-6 max-w-5xl mx-auto font-mono">
+    <div className="space-y-6 max-w-5xl mx-auto">
       {/* Tactical Header */}
-      <div className="flex flex-wrap items-center justify-between gap-4 border-b border-[#262626] pb-4">
+      <div className="flex flex-wrap items-center justify-between gap-4 border-b-2 border-black pb-4">
         <div>
-          <span className="text-[10px] text-[#E61919] uppercase tracking-widest block mb-1">
-            &lt; INTERVIEW_CONSOLE // BACKWARD_CHAINING_ENGINE &gt;
+          <span className="inline-block bg-[#FF7844] text-black border-2 border-black font-black text-[10px] px-2.5 py-0.5 uppercase shadow-[2px_2px_0px_#000000] -rotate-1 mb-2 font-mono">
+            ★ INTERVIEW_CONSOLE // BACKWARD_CHAINING_ENGINE ★
           </span>
-          <h2 className="text-xl font-black text-[#EAEAEA] uppercase tracking-tight font-mono">
-            [ INTERACTIVE_DIAGNOSTIC_INTERVIEW // INFERENCE_SESSION ]
+          <h2 className="text-xl font-black text-white uppercase tracking-tight font-sans">
+            INTERACTIVE DIAGNOSTIC INTERVIEW
           </h2>
-          <p className="text-xs text-neutral-400 mt-0.5 uppercase tracking-wide">
+          <p className="text-xs text-neutral-300 mt-0.5 uppercase tracking-wide font-mono">
             ADAPTIVE REASONING INTERVIEW DRIVEN BY BACKWARD CHAINING &amp; REAL-TIME SAFETY HALTS.
           </p>
         </div>
         {inSession && (
           <button
             onClick={resetSession}
-            className="px-3.5 py-2 bg-[#0A0A0A] hover:bg-[#1a1a1a] text-xs font-mono font-bold uppercase tracking-wider text-neutral-300 hover:text-white rounded-none border border-neutral-700 flex items-center gap-1.5 transition"
+            className="px-4 py-2 bg-[#FED156] hover:bg-[#FFE279] text-xs font-mono font-black uppercase tracking-wider text-black border-2 border-black shadow-[2px_2px_0px_#000000] hover:-translate-x-0.5 hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5 active:shadow-none transition-all flex items-center gap-1.5"
           >
             <RotateCcw className="w-3.5 h-3.5" />
             <span>[ RESET_SESSION ]</span>
@@ -169,17 +170,17 @@ export default function Diagnose() {
 
       {!inSession ? (
         /* Setup Form */
-        <div className="bg-[#121212] border border-[#262626] rounded-none p-6 space-y-6">
+        <div className="bg-[#1E1A29] border-3 border-black p-6 shadow-[5px_5px_0px_#000000] space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             {/* Vehicle Select */}
             <div>
-              <label className="text-xs font-bold text-neutral-300 uppercase tracking-wider block mb-1.5">
+              <label className="text-xs font-black text-neutral-200 uppercase tracking-wider block mb-1.5 font-mono">
                 // TARGET_VEHICLE_UNIT:
               </label>
               <select
                 value={selectedVehicleId}
                 onChange={(e) => setSelectedVehicleId(e.target.value)}
-                className="w-full bg-[#0A0A0A] border border-[#333333] rounded-none p-2.5 text-xs text-[#EAEAEA] font-mono uppercase focus:border-[#E61919] focus:outline-none"
+                className="w-full bg-[#13111C] border-2 border-black text-xs text-white font-mono uppercase font-bold p-3 shadow-[2px_2px_0px_#000000] focus:shadow-[4px_4px_0px_#FF7844] focus:outline-none"
               >
                 {vehicles.length === 0 && <option value="">NO REGISTERED VEHICLES (GENERIC MODE)</option>}
                 {vehicles.map((v) => (
@@ -192,7 +193,7 @@ export default function Diagnose() {
 
             {/* Category Select */}
             <div>
-              <label className="text-xs font-bold text-neutral-300 uppercase tracking-wider block mb-1.5">
+              <label className="text-xs font-black text-neutral-200 uppercase tracking-wider block mb-1.5 font-mono">
                 // PRIMARY_DIAGNOSTIC_DOMAIN:
               </label>
               <select
@@ -201,7 +202,7 @@ export default function Diagnose() {
                   setSelectedCategory(e.target.value);
                   setSelectedSymptoms([]);
                 }}
-                className="w-full bg-[#0A0A0A] border border-[#333333] rounded-none p-2.5 text-xs text-[#EAEAEA] font-mono uppercase focus:border-[#E61919] focus:outline-none"
+                className="w-full bg-[#13111C] border-2 border-black text-xs text-white font-mono uppercase font-bold p-3 shadow-[2px_2px_0px_#000000] focus:shadow-[4px_4px_0px_#FF7844] focus:outline-none"
               >
                 {CATEGORIES.map((cat) => (
                   <option key={cat.id} value={cat.id}>
@@ -214,10 +215,10 @@ export default function Diagnose() {
 
           {/* Initial Symptoms Matrix */}
           <div>
-            <label className="text-xs font-bold text-neutral-300 uppercase tracking-wider block mb-2">
+            <label className="text-xs font-black text-neutral-200 uppercase tracking-wider block mb-2 font-mono">
               // INITIAL_OBSERVED_SYMPTOMS (CHECK ALL OBSERVED):
             </label>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-px bg-[#262626] border border-[#262626]">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
               {(COMMON_SYMPTOMS[selectedCategory] || []).map((sym) => {
                 const isChecked = selectedSymptoms.includes(sym);
                 return (
@@ -225,14 +226,14 @@ export default function Diagnose() {
                     key={sym}
                     type="button"
                     onClick={() => toggleSymptom(sym)}
-                    className={`p-3 rounded-none text-left text-xs font-mono uppercase flex items-center justify-between transition ${
+                    className={`p-3.5 border-2 border-black text-left text-xs font-mono uppercase flex items-center justify-between transition-all duration-100 ${
                       isChecked
-                        ? 'bg-[#181818] text-[#EAEAEA] border-l-2 border-l-[#E61919]'
-                        : 'bg-[#0A0A0A] text-neutral-400 hover:text-white'
+                        ? 'bg-[#FF7844] text-black font-black shadow-[3px_3px_0px_#000000] translate-x-0.5 translate-y-0.5'
+                        : 'bg-[#13111C] text-neutral-300 shadow-[2px_2px_0px_#000000] hover:shadow-[4px_4px_0px_#000000] hover:-translate-x-0.5 hover:-translate-y-0.5 hover:text-white'
                     }`}
                   >
                     <span>{sym.replace(/_/g, ' ')}</span>
-                    <span className="font-bold font-mono text-xs">
+                    <span className="font-mono font-black text-xs px-2 py-0.5 border-2 border-black bg-black text-white shadow-[1px_1px_0px_#000000]">
                       {isChecked ? '[X]' : '[ ]'}
                     </span>
                   </button>
@@ -242,11 +243,11 @@ export default function Diagnose() {
           </div>
 
           {/* Start Button */}
-          <div className="pt-4 border-t border-[#262626] flex justify-end">
+          <div className="pt-4 border-t-2 border-black flex justify-end">
             <button
               onClick={handleStart}
               disabled={loading}
-              className="px-6 py-3 bg-[#E61919] hover:bg-[#FF2A2A] text-white text-xs font-mono font-bold uppercase tracking-wider rounded-none border border-[#E61919] flex items-center gap-2 transition"
+              className="px-6 py-3.5 bg-[#FF7844] hover:bg-[#FF8800] text-black text-xs font-mono font-black uppercase tracking-wider border-3 border-black shadow-[4px_4px_0px_#000000] hover:shadow-[5px_5px_0px_#000000] hover:-translate-x-0.5 hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5 active:shadow-none transition-all flex items-center gap-2 disabled:opacity-50"
             >
               <Stethoscope className="w-4 h-4" />
               <span>{loading ? 'INITIALIZING INFERENCE...' : '[ BEGIN_DIAGNOSTIC_INTERVIEW ]'}</span>
@@ -259,13 +260,15 @@ export default function Diagnose() {
           {/* Main Interview Card */}
           <div className="lg:col-span-2 space-y-6">
             {!completed && currentQuestion ? (
-              <div className="bg-[#121212] border border-[#262626] rounded-none p-6 space-y-6">
-                <div className="flex items-center gap-2 text-xs font-bold text-[#E61919] uppercase tracking-widest pb-3 border-b border-[#262626]">
-                  <Activity className="w-4 h-4" />
-                  <span>[ ADAPTIVE_DIAGNOSTIC_INQUIRY // QUERY: {currentQuestion.fact_key} ]</span>
+              <div className="bg-[#1E1A29] border-3 border-black p-6 space-y-6 shadow-[5px_5px_0px_#000000]">
+                <div className="flex items-center gap-2">
+                  <span className="inline-flex items-center gap-2 bg-[#FED156] text-black border-2 border-black font-black text-xs px-3 py-1 shadow-[2px_2px_0px_#000000] -rotate-1 font-mono">
+                    <Activity className="w-4 h-4" />
+                    ADAPTIVE_INQUIRY // QUERY: {currentQuestion.fact_key}
+                  </span>
                 </div>
 
-                <h3 className="text-base font-black text-[#EAEAEA] uppercase leading-snug">
+                <h3 className="text-lg font-black uppercase text-white leading-snug font-sans">
                   {currentQuestion.question_text}
                 </h3>
 
@@ -279,19 +282,19 @@ export default function Diagnose() {
                         placeholder={`ENTER MEASUREMENT (${currentQuestion.unit || 'UNITS'})...`}
                         value={numericInput}
                         onChange={(e) => setNumericInput(e.target.value)}
-                        className="bg-[#0A0A0A] border border-[#333333] rounded-none p-3 text-xs font-mono text-[#4AF626] flex-1 focus:border-[#4AF626] focus:outline-none uppercase"
+                        className="bg-[#13111C] border-2 border-black p-3.5 text-sm font-mono font-bold text-[#49D49D] shadow-[2px_2px_0px_#000000] focus:shadow-[4px_4px_0px_#FF7844] focus:outline-none flex-1 uppercase"
                       />
                       <button
                         onClick={() => handleAnswer(Number(numericInput))}
                         disabled={numericInput === '' || loading}
-                        className="px-5 py-3 bg-[#E61919] hover:bg-[#FF2A2A] text-white rounded-none text-xs font-mono font-bold uppercase tracking-wider border border-[#E61919]"
+                        className="px-6 py-3.5 bg-[#FF7844] hover:bg-[#FF8800] text-black font-black uppercase text-xs border-2 border-black shadow-[3px_3px_0px_#000000] hover:-translate-x-0.5 hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5 active:shadow-none transition-all disabled:opacity-50"
                       >
                         [ SUBMIT ]
                       </button>
                     </div>
                     {currentQuestion.safe_range && (
-                      <p className="text-[10px] text-neutral-400 uppercase">
-                        // REFERENCE SPEC: <span className="text-[#EAEAEA] font-bold">{currentQuestion.safe_range}</span>
+                      <p className="text-[10px] text-neutral-300 uppercase font-mono">
+                        // REFERENCE SPEC: <span className="text-[#FED156] font-bold">{currentQuestion.safe_range}</span>
                       </p>
                     )}
                   </div>
@@ -300,14 +303,14 @@ export default function Diagnose() {
                     <button
                       onClick={() => handleAnswer(true)}
                       disabled={loading}
-                      className="p-4 bg-[#0A0A0A] hover:bg-emerald-950/40 border border-[#4AF626] text-[#4AF626] font-mono font-bold text-xs uppercase tracking-wider rounded-none transition"
+                      className="p-5 bg-[#49D49D] hover:bg-[#2DE1C2] text-black font-black text-sm uppercase tracking-wider border-3 border-black shadow-[4px_4px_0px_#000000] hover:shadow-[5px_5px_0px_#000000] hover:-translate-x-0.5 hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5 active:shadow-none transition-all disabled:opacity-50 font-mono"
                     >
                       [ YES // OBSERVED ]
                     </button>
                     <button
                       onClick={() => handleAnswer(false)}
                       disabled={loading}
-                      className="p-4 bg-[#0A0A0A] hover:bg-red-950/40 border border-[#E61919] text-[#E61919] font-mono font-bold text-xs uppercase tracking-wider rounded-none transition"
+                      className="p-5 bg-[#FF4785] hover:bg-[#FF3E6C] text-white font-black text-sm uppercase tracking-wider border-3 border-black shadow-[4px_4px_0px_#000000] hover:shadow-[5px_5px_0px_#000000] hover:-translate-x-0.5 hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5 active:shadow-none transition-all disabled:opacity-50 font-mono"
                     >
                       [ NO // NOT_OBSERVED ]
                     </button>
@@ -315,11 +318,11 @@ export default function Diagnose() {
                 )}
 
                 {/* Unknown Button */}
-                <div className="pt-4 border-t border-[#262626] flex justify-end">
+                <div className="pt-4 border-t-2 border-black flex justify-end">
                   <button
                     onClick={() => handleAnswer('UNKNOWN')}
                     disabled={loading}
-                    className="px-4 py-2 bg-[#0A0A0A] hover:bg-neutral-900 border border-neutral-700 text-neutral-400 hover:text-neutral-200 text-xs font-mono font-bold uppercase tracking-wider rounded-none flex items-center gap-1.5 transition"
+                    className="px-4 py-2.5 bg-[#161320] hover:bg-[#FED156] text-neutral-200 hover:text-black border-2 border-black text-xs font-mono font-bold uppercase tracking-wider shadow-[2px_2px_0px_#000000] hover:-translate-x-0.5 hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5 active:shadow-none transition-all flex items-center gap-2 disabled:opacity-50"
                   >
                     <HelpCircle className="w-3.5 h-3.5" />
                     <span>[ UNKNOWN // 3VL_PRESERVED ]</span>
@@ -328,11 +331,11 @@ export default function Diagnose() {
               </div>
             ) : (
               /* Completed Results Card */
-              <div className="bg-[#121212] border border-[#262626] rounded-none p-6 space-y-6">
-                <div className="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-[#262626]">
+              <div className="bg-[#1E1A29] border-3 border-black p-6 space-y-6 shadow-[5px_5px_0px_#000000]">
+                <div className="flex flex-wrap items-center justify-between gap-3 pb-4 border-b-2 border-black">
                   <div className="flex items-center gap-2">
-                    <CheckCircle className="w-5 h-5 text-[#4AF626]" />
-                    <h3 className="text-sm font-black text-[#EAEAEA] uppercase tracking-wider">
+                    <CheckCircle className="w-5 h-5 text-[#49D49D]" />
+                    <h3 className="text-sm font-black text-white uppercase tracking-wider font-sans">
                       [ DIAGNOSTIC_INFERENCE_COMPLETE ]
                     </h3>
                   </div>
@@ -340,7 +343,7 @@ export default function Diagnose() {
                     <a
                       href={api.downloadReportPdfUrl(report.id)}
                       download
-                      className="px-4 py-2 bg-[#E61919] hover:bg-[#FF2A2A] text-white text-xs font-mono font-bold uppercase tracking-wider rounded-none flex items-center gap-1.5 border border-[#E61919] transition"
+                      className="px-4 py-2.5 bg-[#49D49D] hover:bg-[#2DE1C2] text-black border-2 border-black text-xs font-mono font-black uppercase tracking-wider shadow-[3px_3px_0px_#000000] hover:-translate-x-0.5 hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5 active:shadow-none transition-all flex items-center gap-2"
                     >
                       <Download className="w-4 h-4" />
                       <span>[ DOWNLOAD_PDF_DOSSIER ]</span>
@@ -353,29 +356,29 @@ export default function Diagnose() {
                     {report.conclusions.map((conc, idx) => (
                       <div
                         key={idx}
-                        className="bg-[#0A0A0A] border border-[#262626] rounded-none p-5 space-y-3"
+                        className="bg-[#13111C] border-2 border-black p-5 shadow-[4px_4px_0px_#000000] space-y-3"
                       >
                         <div className="flex flex-wrap items-center justify-between gap-2">
-                          <h4 className="text-sm font-black text-[#EAEAEA] uppercase tracking-wider">
+                          <h4 className="text-sm font-black text-white uppercase tracking-wider font-sans">
                             {conc.title}
                           </h4>
                           <EvidenceScoreBadge score={conc.evidence_match_score} />
                         </div>
 
-                        <p className="text-xs text-neutral-300 leading-relaxed font-mono">
+                        <p className="text-xs text-neutral-200 leading-relaxed font-mono">
                           {conc.explanation}
                         </p>
 
-                        <div className="p-3.5 border-l-4 border-l-[#E61919] bg-[#121212] border border-[#262626] rounded-none text-xs">
-                          <strong className="text-[#E61919] block mb-1 uppercase tracking-wider">
+                        <div className="p-4 border-2 border-black bg-[#2D1A10] shadow-[3px_3px_0px_#FF7844] text-xs font-mono">
+                          <strong className="text-[#FF7844] block mb-1 uppercase tracking-wider font-bold">
                             // RECOMMENDED_ACTION:
                           </strong>
                           {conc.recommended_action}
                         </div>
 
                         {conc.preventive_maintenance && (
-                          <div className="text-[11px] text-neutral-400 font-mono">
-                            <strong className="text-neutral-300 uppercase">// PREVENTIVE_TIP:</strong>{' '}
+                          <div className="text-[11px] text-neutral-300 font-mono">
+                            <strong className="text-[#FED156] uppercase">// PREVENTIVE_TIP:</strong>{' '}
                             {conc.preventive_maintenance}
                           </div>
                         )}
@@ -383,7 +386,7 @@ export default function Diagnose() {
                     ))}
                   </div>
                 ) : (
-                  <div className="text-center py-10 text-neutral-500 text-xs uppercase tracking-wider">
+                  <div className="text-center py-10 text-neutral-400 text-xs uppercase tracking-wider font-mono">
                     /// NO ACTIVE FAULTS OR SAFETY VIOLATIONS IDENTIFIED ///
                   </div>
                 )}
@@ -392,15 +395,17 @@ export default function Diagnose() {
           </div>
 
           {/* Working Memory Inspector Panel */}
-          <div className="bg-[#121212] border border-[#262626] rounded-none p-5 space-y-4 h-fit">
-            <div className="flex items-center gap-2 text-xs font-black text-neutral-400 uppercase tracking-wider pb-3 border-b border-[#262626]">
-              <Layers className="w-4 h-4 text-[#E61919]" />
-              <span>[ 3VL_WORKING_MEMORY // REGISTRY ]</span>
+          <div className="bg-[#1E1A29] border-3 border-black p-5 space-y-4 h-fit shadow-[4px_4px_0px_#000000]">
+            <div className="flex items-center gap-2 text-xs font-black text-neutral-200 uppercase tracking-wider pb-3 border-b-2 border-black">
+              <span className="border-2 border-black bg-[#FF7844] text-black font-black text-xs px-2.5 py-0.5 shadow-[2px_2px_0px_#000000] -rotate-1 font-mono flex items-center gap-1.5">
+                <Layers className="w-3.5 h-3.5" />
+                3VL_WORKING_MEMORY // REGISTRY
+              </span>
             </div>
 
-            <div className="space-y-1.5 max-h-96 overflow-y-auto">
+            <div className="space-y-2 max-h-96 overflow-y-auto pr-1">
               {Object.keys(workingMemory).length === 0 ? (
-                <div className="text-xs text-neutral-500 uppercase italic">
+                <div className="text-xs text-neutral-400 uppercase italic font-mono">
                   /// NO FACTS ASSERTED ///
                 </div>
               ) : (
@@ -408,21 +413,21 @@ export default function Diagnose() {
                   const val = typeof f === 'object' && f !== null ? f.value : f;
                   const prov = typeof f === 'object' && f !== null ? f.provenance : 'INITIAL_FACT';
 
-                  let badgeColor = 'text-cyan-400 border-cyan-500 bg-black';
-                  if (val === true) badgeColor = 'text-[#4AF626] border-[#4AF626] bg-black';
-                  if (val === false) badgeColor = 'text-[#E61919] border-[#E61919] bg-black';
-                  if (val === 'UNKNOWN') badgeColor = 'text-amber-400 border-amber-500 bg-black';
+                  let badgeColor = 'bg-[#00E5FF] text-black border-2 border-black shadow-[1px_1px_0px_#000000]';
+                  if (val === true) badgeColor = 'bg-[#49D49D] text-black border-2 border-black shadow-[1px_1px_0px_#000000]';
+                  if (val === false) badgeColor = 'bg-[#FF4785] text-white border-2 border-black shadow-[1px_1px_0px_#000000]';
+                  if (val === 'UNKNOWN') badgeColor = 'bg-[#FED156] text-black border-2 border-black shadow-[1px_1px_0px_#000000]';
 
                   return (
                     <div
                       key={key}
-                      className="p-2 bg-[#0A0A0A] border border-[#262626] rounded-none text-xs flex items-center justify-between font-mono"
+                      className="p-2.5 bg-[#13111C] border-2 border-black shadow-[2px_2px_0px_#000000] flex items-center justify-between font-mono text-xs"
                     >
                       <div className="truncate mr-2">
-                        <span className="font-mono text-neutral-300 block truncate">{key}</span>
-                        <span className="text-[9px] text-neutral-500 uppercase">{prov}</span>
+                        <span className="font-mono text-white font-bold block truncate">{key}</span>
+                        <span className="text-[9px] text-[#FED156] uppercase font-mono">{prov}</span>
                       </div>
-                      <span className={`px-2 py-0.5 rounded-none font-mono font-bold text-[10px] uppercase border ${badgeColor}`}>
+                      <span className={`px-2 py-0.5 font-mono font-black text-[10px] uppercase shrink-0 ${badgeColor}`}>
                         [ {String(val)} ]
                       </span>
                     </div>

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Play, Search } from 'lucide-react';
+import { Play, Search, Activity, Sparkles } from 'lucide-react';
 import { api } from '../services/api';
 import TraceViewer from '../components/TraceViewer';
 
@@ -67,39 +67,39 @@ export default function Monitor() {
   };
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto font-mono">
+    <div className="space-y-6 max-w-7xl mx-auto">
       {/* Tactical Header */}
-      <div className="flex flex-wrap items-center justify-between gap-4 border-b border-[#262626] pb-4">
+      <div className="flex flex-wrap items-center justify-between gap-4 border-b-2 border-black pb-4">
         <div>
-          <span className="text-[10px] text-[#E61919] uppercase tracking-widest block mb-1">
-            &lt; ENGINE_CONSOLE // DUAL_MODE_INFERENCE &gt;
+          <span className="inline-block bg-[#FF7844] text-black border-2 border-black font-black text-[10px] px-2.5 py-0.5 uppercase shadow-[2px_2px_0px_#000000] -rotate-1 mb-2 font-mono">
+            ★ ENGINE_CONSOLE // DUAL_MODE_INFERENCE ★
           </span>
-          <h2 className="text-xl font-black text-[#EAEAEA] uppercase tracking-tight font-mono">
-            [ INFERENCE_ENGINE_MONITOR // 3VL_CHRONO_TELEMETRY ]
+          <h2 className="text-xl font-black text-white uppercase tracking-tight font-sans">
+            INFERENCE ENGINE MONITOR // 3VL CHRONO TELEMETRY
           </h2>
-          <p className="text-xs text-neutral-400 mt-0.5 uppercase tracking-wide">
+          <p className="text-xs text-neutral-300 mt-0.5 uppercase tracking-wide font-mono">
             REAL-TIME WORKING MEMORY INSPECTION, FORWARD MULTI-PASS REASONING &amp; GOAL-DRIVEN PROOFS.
           </p>
         </div>
 
         {/* Tab Navigation */}
-        <div className="flex bg-[#0A0A0A] border border-[#262626] p-0 rounded-none text-xs font-mono">
+        <div className="flex border-3 border-black shadow-[4px_4px_0px_#000000] bg-[#161320] text-xs font-mono">
           <button
             onClick={() => setActiveTab('forward')}
-            className={`px-4 py-2.5 rounded-none uppercase font-bold tracking-wider border-r border-[#262626] transition ${
+            className={`px-5 py-3 uppercase font-black tracking-wider border-r-2 border-black transition-all ${
               activeTab === 'forward'
-                ? 'bg-[#EAEAEA] text-black'
-                : 'text-neutral-400 hover:text-white'
+                ? 'bg-[#FF7844] text-black'
+                : 'bg-[#161320] text-neutral-300 hover:text-black hover:bg-[#FED156]'
             }`}
           >
             [ FORWARD_CHAINING_ENGINE ]
           </button>
           <button
             onClick={() => setActiveTab('backward')}
-            className={`px-4 py-2.5 rounded-none uppercase font-bold tracking-wider transition ${
+            className={`px-5 py-3 uppercase font-black tracking-wider transition-all ${
               activeTab === 'backward'
-                ? 'bg-[#EAEAEA] text-black'
-                : 'text-neutral-400 hover:text-white'
+                ? 'bg-[#FF7844] text-black'
+                : 'bg-[#161320] text-neutral-300 hover:text-black hover:bg-[#FED156]'
             }`}
           >
             [ BACKWARD_CHAINING_PROVER ]
@@ -112,20 +112,20 @@ export default function Monitor() {
         <div className="space-y-6">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Input Config Card */}
-            <div className="bg-[#121212] border border-[#262626] rounded-none p-5 space-y-4">
-              <h3 className="text-xs font-black text-neutral-300 uppercase tracking-widest">
+            <div className="bg-[#1E1A29] border-3 border-black p-5 space-y-4 shadow-[4px_4px_0px_#000000]">
+              <h3 className="text-xs font-black text-white uppercase tracking-widest font-mono">
                 // INITIAL_FACT_ASSERTIONS (JSON):
               </h3>
               <textarea
                 rows={12}
                 value={forwardFactsText}
                 onChange={(e) => setForwardFactsText(e.target.value)}
-                className="w-full bg-[#0A0A0A] border border-[#333333] rounded-none p-3 font-mono text-xs text-[#4AF626] focus:outline-none focus:border-[#4AF626]"
+                className="w-full bg-[#13111C] border-2 border-black p-3.5 font-mono text-xs font-bold text-[#49D49D] shadow-[2px_2px_0px_#000000] focus:shadow-[4px_4px_0px_#FF7844] focus:outline-none"
               />
               <button
                 onClick={handleRunForward}
                 disabled={forwardLoading}
-                className="w-full py-3 bg-[#E61919] hover:bg-[#FF2A2A] text-white text-xs font-mono font-bold uppercase tracking-wider rounded-none border border-[#E61919] flex items-center justify-center gap-2 transition"
+                className="w-full py-3.5 bg-[#FF7844] hover:bg-[#FF8800] text-black text-xs font-mono font-black uppercase tracking-wider border-3 border-black shadow-[4px_4px_0px_#000000] hover:-translate-x-0.5 hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5 active:shadow-none transition-all flex items-center justify-center gap-2 disabled:opacity-50"
               >
                 <Play className="w-4 h-4" />
                 <span>{forwardLoading ? 'EXECUTING INFERENCE...' : '[ EXECUTE_FORWARD_CHAINING ]'}</span>
@@ -133,51 +133,51 @@ export default function Monitor() {
             </div>
 
             {/* Inference Summary Card */}
-            <div className="lg:col-span-2 bg-[#121212] border border-[#262626] rounded-none p-5 space-y-4">
-              <h3 className="text-xs font-black text-neutral-300 uppercase tracking-widest">
+            <div className="lg:col-span-2 bg-[#1E1A29] border-3 border-black p-5 space-y-4 shadow-[4px_4px_0px_#000000]">
+              <h3 className="text-xs font-black text-white uppercase tracking-widest font-mono">
                 // INFERENCE_ENGINE_OUTPUT &amp; TELEMETRY_METRICS:
               </h3>
 
               {!forwardResult ? (
-                <div className="text-center py-16 text-xs text-neutral-500 uppercase tracking-wider">
+                <div className="text-center py-16 text-xs text-neutral-400 uppercase tracking-wider font-mono">
                   /// EXECUTE FORWARD CHAINING TO GENERATE EXECUTION TRACE ///
                 </div>
               ) : (
                 <div className="space-y-4">
                   {/* Status Grid */}
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-px bg-[#262626] border border-[#262626]">
-                    <div className="p-3 bg-[#0A0A0A] rounded-none">
-                      <span className="text-neutral-500 text-[10px] block uppercase">// RUNTIME</span>
-                      <span className="text-base font-bold text-[#4AF626] font-mono">
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    <div className="p-3.5 bg-[#13111C] border-2 border-black shadow-[2px_2px_0px_#000000]">
+                      <span className="text-neutral-400 text-[10px] block uppercase font-mono">// RUNTIME</span>
+                      <span className="text-base font-black text-[#49D49D] font-mono">
                         {forwardResult.runtime_ms} MS
                       </span>
                     </div>
-                    <div className="p-3 bg-[#0A0A0A] rounded-none">
-                      <span className="text-neutral-500 text-[10px] block uppercase">// TOTAL_PASSES</span>
-                      <span className="text-base font-bold text-[#EAEAEA] font-mono">
+                    <div className="p-3.5 bg-[#13111C] border-2 border-black shadow-[2px_2px_0px_#000000]">
+                      <span className="text-neutral-400 text-[10px] block uppercase font-mono">// TOTAL_PASSES</span>
+                      <span className="text-base font-black text-[#FED156] font-mono">
                         {forwardResult.total_passes}
                       </span>
                     </div>
-                    <div className="p-3 bg-[#0A0A0A] rounded-none">
-                      <span className="text-neutral-500 text-[10px] block uppercase">// RULES_TRIGGERED</span>
-                      <span className="text-base font-bold text-[#EAEAEA] font-mono">
+                    <div className="p-3.5 bg-[#13111C] border-2 border-black shadow-[2px_2px_0px_#000000]">
+                      <span className="text-neutral-400 text-[10px] block uppercase font-mono">// RULES_TRIGGERED</span>
+                      <span className="text-base font-black text-[#FF7844] font-mono">
                         {forwardResult.triggered_rules.length}
                       </span>
                     </div>
-                    <div className="p-3 bg-[#0A0A0A] rounded-none">
-                      <span className="text-neutral-500 text-[10px] block uppercase">// FIXED_POINT</span>
-                      <span className="text-base font-bold text-[#4AF626] font-mono">
+                    <div className="p-3.5 bg-[#13111C] border-2 border-black shadow-[2px_2px_0px_#000000]">
+                      <span className="text-neutral-400 text-[10px] block uppercase font-mono">// FIXED_POINT</span>
+                      <span className="text-base font-black text-[#49D49D] font-mono">
                         {forwardResult.fixed_point_reached ? 'TRUE' : 'FALSE'}
                       </span>
                     </div>
                   </div>
 
                   {/* Triggered Rule Sequence */}
-                  <div className="p-3 bg-[#0A0A0A] border border-[#262626] rounded-none text-xs">
-                    <span className="text-neutral-500 block mb-1 uppercase font-bold text-[10px]">
+                  <div className="p-3.5 bg-[#13111C] border-2 border-black shadow-[2px_2px_0px_#000000] text-xs">
+                    <span className="text-neutral-400 block mb-1 uppercase font-bold text-[10px] font-mono">
                       // RULE_ACTIVATION_SEQUENCE:
                     </span>
-                    <div className="font-mono text-[#EAEAEA] font-bold">
+                    <div className="font-mono text-white font-bold">
                       {forwardResult.triggered_rules.length > 0
                         ? forwardResult.triggered_rules.join(' >>> ')
                         : 'NONE'}
@@ -187,16 +187,16 @@ export default function Monitor() {
                   {/* Concluded Faults */}
                   {forwardResult.conclusions.length > 0 && (
                     <div className="space-y-2">
-                      <span className="text-[10px] font-black text-neutral-400 uppercase tracking-widest block">
+                      <span className="text-[10px] font-black text-neutral-300 uppercase tracking-widest block font-mono">
                         // CONCLUDED_FAULTS:
                       </span>
                       {forwardResult.conclusions.map((c, i) => (
                         <div
                           key={i}
-                          className="p-3 bg-[#0A0A0A] border-l-4 border-l-[#E61919] border border-[#262626] rounded-none text-xs"
+                          className="p-4 bg-[#2C131D] border-2 border-black shadow-[3px_3px_0px_#000000] text-xs"
                         >
-                          <div className="font-black text-[#EAEAEA] uppercase">{c.title}</div>
-                          <div className="text-[11px] text-neutral-400 mt-0.5">{c.explanation}</div>
+                          <div className="font-black text-white uppercase font-sans text-sm">{c.title}</div>
+                          <div className="text-[11px] text-neutral-300 mt-1 font-mono">{c.explanation}</div>
                         </div>
                       ))}
                     </div>
@@ -205,23 +205,23 @@ export default function Monitor() {
                   {/* Conflict Resolution Log */}
                   {forwardResult.conflict_log?.length > 0 && (
                     <div className="space-y-2">
-                      <span className="text-[10px] font-black text-neutral-400 uppercase tracking-widest block">
+                      <span className="text-[10px] font-black text-neutral-300 uppercase tracking-widest block font-mono">
                         // 5-TIER_CONFLICT_RESOLUTION_LOG:
                       </span>
                       {forwardResult.conflict_log.map((log, i) => (
                         <div
                           key={i}
-                          className="p-3 bg-[#0A0A0A] border border-[#262626] rounded-none text-xs space-y-1"
+                          className="p-3.5 bg-[#13111C] border-2 border-black shadow-[2px_2px_0px_#000000] text-xs space-y-1 font-mono"
                         >
-                          <div className="flex justify-between font-bold text-neutral-300">
+                          <div className="flex justify-between font-bold text-white">
                             <span>
-                              PASS 0{log.pass_number}: WINNER = {log.chosen_rule_id}
+                              PASS 0{log.pass_number}: WINNER = <span className="text-[#FF7844]">{log.chosen_rule_id}</span>
                             </span>
-                            <span className="text-neutral-500 text-[10px]">
+                            <span className="text-[#FED156] text-[10px]">
                               {log.competing_rules.length} COMPETING RULE(S)
                             </span>
                           </div>
-                          <div className="text-[11px] text-neutral-400 italic">
+                          <div className="text-[11px] text-neutral-300 italic">
                             RATIONALE: {log.rationale}
                           </div>
                         </div>
@@ -236,7 +236,7 @@ export default function Monitor() {
           {/* Trace Viewer Component */}
           {forwardResult && forwardResult.execution_steps?.length > 0 && (
             <div className="space-y-2">
-              <h3 className="text-xs font-black text-[#EAEAEA] uppercase tracking-widest">
+              <h3 className="text-xs font-black text-white uppercase tracking-widest font-sans">
                 [ STEP_BY_STEP_REASONING_PLAYBACK ]
               </h3>
               <TraceViewer steps={forwardResult.execution_steps} />
@@ -249,8 +249,8 @@ export default function Monitor() {
       {activeTab === 'backward' && (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Target Goal Input */}
-          <div className="bg-[#121212] border border-[#262626] rounded-none p-5 space-y-4">
-            <h3 className="text-xs font-black text-neutral-300 uppercase tracking-widest">
+          <div className="bg-[#1E1A29] border-3 border-black p-5 space-y-4 shadow-[4px_4px_0px_#000000]">
+            <h3 className="text-xs font-black text-white uppercase tracking-widest font-mono">
               // TARGET_HYPOTHESIS_GOAL:
             </h3>
             <input
@@ -258,23 +258,23 @@ export default function Monitor() {
               placeholder="E.G. FAULT_STATOR_REGULATOR_FAILURE"
               value={targetGoal}
               onChange={(e) => setTargetGoal(e.target.value)}
-              className="w-full bg-[#0A0A0A] border border-[#333333] rounded-none p-2.5 text-xs text-[#EAEAEA] font-mono uppercase focus:border-[#E61919] focus:outline-none"
+              className="w-full bg-[#13111C] border-2 border-black p-3 text-xs text-white font-mono font-bold uppercase shadow-[2px_2px_0px_#000000] focus:shadow-[4px_4px_0px_#FF7844] focus:outline-none"
             />
 
-            <h3 className="text-xs font-black text-neutral-300 uppercase tracking-widest pt-2">
+            <h3 className="text-xs font-black text-white uppercase tracking-widest pt-2 font-mono">
               // KNOWN_FACTS_REGISTRY (JSON):
             </h3>
             <textarea
               rows={8}
               value={backwardFactsText}
               onChange={(e) => setBackwardFactsText(e.target.value)}
-              className="w-full bg-[#0A0A0A] border border-[#333333] rounded-none p-3 font-mono text-xs text-cyan-400 focus:outline-none focus:border-cyan-400"
+              className="w-full bg-[#13111C] border-2 border-black p-3.5 font-mono text-xs font-bold text-[#00E5FF] shadow-[2px_2px_0px_#000000] focus:shadow-[4px_4px_0px_#FF7844] focus:outline-none"
             />
 
             <button
               onClick={handleRunBackward}
               disabled={backwardLoading || !targetGoal}
-              className="w-full py-3 bg-[#EAEAEA] hover:bg-white text-black text-xs font-mono font-bold uppercase tracking-wider rounded-none border border-[#EAEAEA] flex items-center justify-center gap-2 transition"
+              className="w-full py-3.5 bg-[#49D49D] hover:bg-[#2DE1C2] text-black text-xs font-mono font-black uppercase tracking-wider border-3 border-black shadow-[4px_4px_0px_#000000] hover:-translate-x-0.5 hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5 active:shadow-none transition-all flex items-center justify-center gap-2 disabled:opacity-50"
             >
               <Search className="w-4 h-4" />
               <span>{backwardLoading ? 'PROVING HYPOTHESIS...' : '[ PROVE_TARGET_GOAL ]'}</span>
@@ -282,37 +282,37 @@ export default function Monitor() {
           </div>
 
           {/* Backward Proof Tree Output */}
-          <div className="lg:col-span-2 bg-[#121212] border border-[#262626] rounded-none p-5 space-y-4">
-            <h3 className="text-xs font-black text-neutral-300 uppercase tracking-widest">
+          <div className="lg:col-span-2 bg-[#1E1A29] border-3 border-black p-5 space-y-4 shadow-[4px_4px_0px_#000000]">
+            <h3 className="text-xs font-black text-white uppercase tracking-widest font-mono">
               // RECURSIVE_PROOF_TREE &amp; TARGETED_QUESTIONS:
             </h3>
 
             {!backwardTree ? (
-              <div className="text-center py-16 text-xs text-neutral-500 uppercase tracking-wider">
+              <div className="text-center py-16 text-xs text-neutral-400 uppercase tracking-wider font-mono">
                 /// CONFIGURE TARGET HYPOTHESIS AND FACTS TO INITIATE PROVER ///
               </div>
             ) : (
               <div className="space-y-4">
                 {/* Proof Status Badge */}
-                <div className="p-4 bg-[#0A0A0A] border border-[#262626] rounded-none flex items-center justify-between font-mono">
+                <div className="p-5 bg-[#13111C] border-3 border-black shadow-[4px_4px_0px_#000000] flex items-center justify-between font-mono">
                   <div>
-                    <span className="text-[10px] text-neutral-500 uppercase tracking-wider block">
+                    <span className="text-[10px] text-neutral-400 uppercase tracking-wider block font-mono">
                       // HYPOTHESIS_VERDICT: [ {backwardTree.target_goal} ]
                     </span>
                     <span
-                      className={`text-lg font-black tracking-wider ${
+                      className={`text-lg font-black tracking-wider inline-block mt-1 px-3 py-1 border-2 border-black shadow-[2px_2px_0px_#000000] ${
                         backwardTree.status === 'PROVEN'
-                          ? 'text-[#4AF626]'
+                          ? 'bg-[#49D49D] text-black -rotate-1'
                           : backwardTree.status === 'DISPROVEN'
-                          ? 'text-[#E61919]'
-                          : 'text-amber-400'
+                          ? 'bg-[#FF4785] text-white rotate-1'
+                          : 'bg-[#FED156] text-black'
                       }`}
                     >
                       [ {backwardTree.status} ]
                     </span>
                   </div>
                   {backwardTree.cycles_prevented?.length > 0 && (
-                    <span className="px-2.5 py-1 bg-black border border-amber-600 text-amber-400 rounded-none text-xs font-bold uppercase">
+                    <span className="px-2.5 py-1 bg-[#2A2412] border-2 border-black text-[#FED156] text-xs font-black uppercase shadow-[2px_2px_0px_#000000]">
                       CYCLE_PREVENTED ({backwardTree.cycles_prevented.length})
                     </span>
                   )}
@@ -320,15 +320,15 @@ export default function Monitor() {
 
                 {/* Missing Facts List */}
                 {backwardTree.missing_facts?.length > 0 && (
-                  <div className="p-4 bg-[#0A0A0A] border-l-2 border-l-amber-500 border border-[#262626] rounded-none space-y-2">
-                    <span className="text-[10px] font-black text-amber-400 uppercase tracking-widest block">
+                  <div className="p-4 bg-[#2A2412] border-2 border-black shadow-[3px_3px_0px_#000000] space-y-2">
+                    <span className="text-[10px] font-black text-[#FED156] uppercase tracking-widest block font-mono">
                       // MISSING_OBSERVABLE_FACTS_REQUIRED:
                     </span>
                     <div className="flex flex-wrap gap-2">
                       {backwardTree.missing_facts.map((mf, i) => (
                         <span
                           key={i}
-                          className="px-2.5 py-1 bg-black border border-amber-600 text-amber-300 rounded-none font-mono text-xs"
+                          className="px-3 py-1 bg-[#13111C] border-2 border-black text-[#FED156] font-mono text-xs font-bold shadow-[2px_2px_0px_#000000]"
                         >
                           [ ?MISSING: {mf} ]
                         </span>
@@ -340,19 +340,19 @@ export default function Monitor() {
                 {/* Suggested Questions */}
                 {backwardTree.suggested_questions?.length > 0 && (
                   <div className="space-y-2">
-                    <span className="text-[10px] font-black text-neutral-400 uppercase tracking-widest block">
+                    <span className="text-[10px] font-black text-neutral-300 uppercase tracking-widest block font-mono">
                       // GENERATED_TARGETED_FOLLOW_UP_QUESTIONS:
                     </span>
                     <div className="space-y-2">
                       {backwardTree.suggested_questions.map((q, i) => (
                         <div
                           key={i}
-                          className="p-3 bg-[#0A0A0A] border border-[#262626] rounded-none text-xs"
+                          className="p-3.5 bg-[#13111C] border-2 border-black shadow-[2px_2px_0px_#000000] text-xs font-mono"
                         >
-                          <span className="font-mono text-[10px] text-[#E61919] font-bold block mb-0.5">
+                          <span className="font-mono text-[10px] text-[#FF7844] font-black block mb-0.5">
                             [ TARGET_KEY: {q.fact_key} ]
                           </span>
-                          <span className="text-[#EAEAEA] font-medium">{q.question_text}</span>
+                          <span className="text-white font-medium">{q.question_text}</span>
                         </div>
                       ))}
                     </div>
