@@ -1,197 +1,397 @@
-import React, { useState, useEffect } from 'react';
-import { Settings as SettingsIcon, Save, CheckCircle, Info, Sparkles } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import {
+  AlertTriangle,
+  CheckCircle2,
+  Cpu,
+  Database,
+  FileText,
+  Save,
+  Server,
+  Settings as SettingsIcon,
+  Sliders,
+} from 'lucide-react';
+import {
+  HudButton,
+  NexusPanel,
+  PageTransition,
+  SectionHeader,
+  TelemetryBadge,
+} from '../components/ui';
 import { api } from '../services/api';
+
+const PLAYBACK_PRESETS = [250, 500, 1000, 1500, 2500];
+
+const ENGINE_SPECS = [
+  {
+    label: 'Symbolic Core Package',
+    value: 'autoexpert_engine 1.0.0',
+    detail: 'Python 3.11.9 · Pydantic 2.14.4 · JSON Schema Draft-07 (jsonschema 4.26.0)',
+    badge: 'PURE SYMBOLIC · ZERO LLM',
+    variant: 'lime',
+  },
+  {
+    label: 'Validated Knowledge Base',
+    value: '55 JSON Rules · 15 Safety-Critical',
+    detail:
+      '20 motorcycle, 20 car, 15 maintenance rules (49 fault conclusions + 6 chaining rules across 8 categories)',
+    badge: 'SCHEMA VALIDATED',
+    variant: 'cyan',
+  },
+  {
+    label: 'Inference & Conflict Engine',
+    value: '3-Valued Logic + 5-Tier Conflict Resolution',
+    detail:
+      'Working memory (TRUE / FALSE / UNKNOWN) · Refraction -> Safety -> Specificity -> Priority -> Rule ID · Cycle-safe Backward Chaining',
+    badge: 'DETERMINISTIC',
+    variant: 'neutral',
+  },
+  {
+    label: 'API Transport & PDF Export',
+    value: 'FastAPI 0.165.0 + Uvicorn 0.54.0',
+    detail: 'ReportLab 5.1.0 certified PDF dossier generation & OpenAPI (/docs) specification',
+    badge: 'REST + PDF',
+    variant: 'cyan',
+  },
+  {
+    label: 'Database & Persistence Layer',
+    value: 'SQLite + SQLAlchemy 2.1.9 (7 Tables)',
+    detail:
+      'vehicles, diagnostic_sessions, session_facts, diagnostic_reports, maintenance_records, maintenance_reminders, user_preferences',
+    badge: 'LOCAL AUDIT STORE',
+    variant: 'neutral',
+  },
+];
 
 export default function Settings() {
   const [distanceUnit, setDistanceUnit] = useState('km');
   const [pressureUnit, setPressureUnit] = useState('psi');
-  const [playbackSpeed, setPlaybackSpeed] = useState(600);
-  const [saved, setSaved] = useState(false);
+  const [playbackSpeed, setPlaybackSpeed] = useState(500);
+  const [updatedAt, setUpdatedAt] = useState(null);
+
   const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+  const [error, setError] = useState('');
 
   useEffect(() => {
-    api.getSettings()
+    let active = true;
+    api
+      .getSettings()
       .then((data) => {
-        if (data) {
-          setDistanceUnit(data.distance_unit || 'km');
-          setPressureUnit(data.pressure_unit || 'psi');
-          setPlaybackSpeed(data.default_demo_playback_ms || 600);
-        }
+        if (!active || !data) return;
+        setDistanceUnit(data.distance_unit || 'km');
+        setPressureUnit(data.pressure_unit || 'psi');
+        setPlaybackSpeed(
+          typeof data.default_demo_playback_ms === 'number'
+            ? data.default_demo_playback_ms
+            : 500
+        );
+        setUpdatedAt(data.updated_at || null);
       })
-      .catch((err) => console.error('Failed to load settings:', err))
-      .finally(() => setLoading(false));
+      .catch((err) => {
+        if (!active) return;
+        setError(err.message || 'Unable to load saved telemetry preferences.');
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+
+    return () => {
+      active = false;
+    };
   }, []);
 
   const handleSave = async (e) => {
     e.preventDefault();
+    const numericSpeed = Math.max(200, Math.min(3000, Number(playbackSpeed) || 500));
+    setPlaybackSpeed(numericSpeed);
+    setSaving(true);
+    setSaved(false);
+    setError('');
+
     try {
-      await api.updateSettings({
+      const updated = await api.updateSettings({
         distance_unit: distanceUnit,
         pressure_unit: pressureUnit,
-        default_demo_playback_ms: Number(playbackSpeed),
+        default_demo_playback_ms: numericSpeed,
       });
+      setUpdatedAt(updated?.updated_at || new Date().toISOString());
       setSaved(true);
-      setTimeout(() => setSaved(false), 3000);
+      setTimeout(() => setSaved(false), 3500);
     } catch (err) {
-      alert(`Error saving preferences: ${err.message}`);
+      setError(err.message || 'Failed to commit preferences.');
+    } finally {
+      setSaving(false);
     }
   };
 
   return (
-    <div className="space-y-6 max-w-3xl mx-auto">
-      {/* Tactical Header */}
-      <div className="border-b-2 border-black pb-4">
-        <span className="inline-block bg-[#FF7844] text-black border-2 border-black font-black text-[10px] px-2.5 py-0.5 uppercase shadow-[2px_2px_0px_#000000] -rotate-1 mb-2 font-mono">
-          ★ SYSTEM_CALIBRATION // HARDWARE_SPECS ★
-        </span>
-        <h2 className="text-xl font-black text-white uppercase tracking-tight font-sans flex items-center gap-2">
-          <SettingsIcon className="w-5 h-5 text-[#FF7844]" />
-          <span>SYSTEM PARAMETERS // OPERATIONAL CALIBRATION</span>
-        </h2>
-        <p className="text-xs text-neutral-300 mt-0.5 uppercase tracking-wide font-mono">
-          CALIBRATE TELEMETRY UNIT CONVENTIONS, PLAYBACK CHRONOMETRY &amp; HARDWARE CONSTRAINTS.
-        </p>
-      </div>
+    <PageTransition className="space-y-6">
+      <SectionHeader
+        code="CFG_10"
+        eyebrow="TELEMETRY & ENGINE CALIBRATION"
+        title="System Preferences & Runtime Specs"
+        description="Configure persistent distance/pressure measurement units and TraceViewer playback chronometry stored in SQLite user_preferences."
+        icon={SettingsIcon}
+        actions={
+          updatedAt ? (
+            <TelemetryBadge variant="neutral">
+              LAST SAVED: {updatedAt.slice(0, 19).replace('T', ' ')}
+            </TelemetryBadge>
+          ) : null
+        }
+      />
 
-      {saved && (
-        <div className="p-3.5 bg-[#49D49D] border-2 border-black shadow-[4px_4px_0px_#000000] flex items-center gap-2 text-xs text-black font-mono font-black uppercase tracking-wider">
-          <CheckCircle className="w-4 h-4 text-black shrink-0" />
-          <span>[ SUCCESS: OPERATIONAL_PARAMETERS_COMMITTED_TO_SQLITE ]</span>
-        </div>
-      )}
-
-      <form onSubmit={handleSave} className="bg-[#1E1A29] border-3 border-black p-6 space-y-6 shadow-[5px_5px_0px_#000000] font-mono">
-        {/* Distance Unit */}
-        <div>
-          <label className="text-[10px] font-black text-neutral-300 uppercase tracking-widest block mb-1.5 font-mono">
-            // ODOMETER_DISTANCE_MEASUREMENT_UNIT:
-          </label>
-          <div className="grid grid-cols-2 gap-3 mt-1.5">
-            <button
-              type="button"
-              onClick={() => setDistanceUnit('km')}
-              className={`p-3.5 text-xs font-mono font-black uppercase tracking-wider border-2 border-black transition-all ${
-                distanceUnit === 'km'
-                  ? 'bg-[#FF7844] text-black shadow-[3px_3px_0px_#000000] -translate-x-0.5 -translate-y-0.5'
-                  : 'bg-[#13111C] text-neutral-300 shadow-[2px_2px_0px_#000000] hover:text-black hover:bg-[#FED156]'
-              }`}
-            >
-              {distanceUnit === 'km' ? '[X]' : '[ ]'} KILOMETERS (KM)
-            </button>
-            <button
-              type="button"
-              onClick={() => setDistanceUnit('mi')}
-              className={`p-3.5 text-xs font-mono font-black uppercase tracking-wider border-2 border-black transition-all ${
-                distanceUnit === 'mi'
-                  ? 'bg-[#FF7844] text-black shadow-[3px_3px_0px_#000000] -translate-x-0.5 -translate-y-0.5'
-                  : 'bg-[#13111C] text-neutral-300 shadow-[2px_2px_0px_#000000] hover:text-black hover:bg-[#FED156]'
-              }`}
-            >
-              {distanceUnit === 'mi' ? '[X]' : '[ ]'} MILES (MI)
-            </button>
-          </div>
-        </div>
-
-        {/* Pressure Unit */}
-        <div>
-          <label className="text-[10px] font-black text-neutral-300 uppercase tracking-widest block mb-1.5 font-mono">
-            // HYDRAULIC_&amp;_TYRE_PRESSURE_UNIT:
-          </label>
-          <div className="grid grid-cols-2 gap-3 mt-1.5">
-            <button
-              type="button"
-              onClick={() => setPressureUnit('psi')}
-              className={`p-3.5 text-xs font-mono font-black uppercase tracking-wider border-2 border-black transition-all ${
-                pressureUnit === 'psi'
-                  ? 'bg-[#FF7844] text-black shadow-[3px_3px_0px_#000000] -translate-x-0.5 -translate-y-0.5'
-                  : 'bg-[#13111C] text-neutral-300 shadow-[2px_2px_0px_#000000] hover:text-black hover:bg-[#FED156]'
-              }`}
-            >
-              {pressureUnit === 'psi' ? '[X]' : '[ ]'} POUNDS_PER_SQ_INCH (PSI)
-            </button>
-            <button
-              type="button"
-              onClick={() => setPressureUnit('bar')}
-              className={`p-3.5 text-xs font-mono font-black uppercase tracking-wider border-2 border-black transition-all ${
-                pressureUnit === 'bar'
-                  ? 'bg-[#FF7844] text-black shadow-[3px_3px_0px_#000000] -translate-x-0.5 -translate-y-0.5'
-                  : 'bg-[#13111C] text-neutral-300 shadow-[2px_2px_0px_#000000] hover:text-black hover:bg-[#FED156]'
-              }`}
-            >
-              {pressureUnit === 'bar' ? '[X]' : '[ ]'} BAR (METRIC_BAR)
-            </button>
-          </div>
-        </div>
-
-        {/* Playback speed */}
-        <div>
-          <label className="text-[10px] font-black text-neutral-300 uppercase tracking-widest block mb-1.5 font-mono">
-            // TRACE_VIEWER_PLAYBACK_INTERVAL (MS_PER_STEP):
-          </label>
-          <input
-            type="number"
-            min={200}
-            max={3000}
-            step={100}
-            value={playbackSpeed}
-            onChange={(e) => setPlaybackSpeed(Number(e.target.value))}
-            className="w-full bg-[#13111C] border-2 border-black p-3 text-xs text-white font-mono uppercase font-bold shadow-[2px_2px_0px_#000000] focus:shadow-[4px_4px_0px_#FF7844] focus:outline-none"
-          />
-          <span className="text-[10px] text-neutral-400 mt-1 block uppercase font-mono">
-            // CONTROLS AUTOMATIC STEPPING INTERVAL IN TRACE_VIEWER FLIGHT RECORDER (DEFAULT: 600MS).
+      {saved ? (
+        <div
+          role="status"
+          className="rounded-md border border-[#C7FF4A]/40 bg-[#17240A] px-4 py-3 flex items-center gap-2.5 text-xs font-mono text-[#C7FF4A]"
+        >
+          <CheckCircle2 className="h-4 w-4 shrink-0" aria-hidden="true" />
+          <span>
+            Preferences committed to SQLite: {distanceUnit.toUpperCase()} ·{' '}
+            {pressureUnit.toUpperCase()} · {playbackSpeed} ms/step
           </span>
         </div>
+      ) : null}
 
-        {/* Submit */}
-        <div className="pt-4 border-t-2 border-black flex justify-end">
-          <button
-            type="submit"
-            className="px-6 py-3 bg-[#49D49D] hover:bg-[#2DE1C2] text-black text-xs font-mono font-black uppercase tracking-wider border-2 border-black shadow-[3px_3px_0px_#000000] hover:-translate-x-0.5 hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5 active:shadow-none transition-all flex items-center gap-2"
-          >
-            <Save className="w-4 h-4" />
-            <span>[ COMMIT_PREFERENCES ]</span>
-          </button>
+      {error ? (
+        <div
+          role="alert"
+          className="rounded-md border border-[#FF3B5C]/45 bg-[#290D16] px-4 py-3 flex items-center gap-2.5 text-xs text-[#FFC2CD]"
+        >
+          <AlertTriangle className="h-4 w-4 shrink-0 text-[#FF3B5C]" aria-hidden="true" />
+          <span>{error}</span>
         </div>
-      </form>
+      ) : null}
 
-      {/* System Specifications Card */}
-      <div className="bg-[#1E1A29] border-3 border-black p-6 space-y-3 font-mono shadow-[5px_5px_0px_#FED156]">
-        <h3 className="text-xs font-black text-white uppercase tracking-widest flex items-center gap-2 border-b-2 border-black pb-2 font-sans">
-          <Info className="w-4 h-4 text-[#FED156]" />
-          <span>[ HARDWARE &amp; ENGINE SPECIFICATIONS ]</span>
-        </h3>
-        <div className="text-xs text-neutral-300 space-y-2 leading-relaxed font-mono">
-          <p className="uppercase text-[11px] text-[#FED156] font-bold">
-            AUTOEXPERT IS AN INSTALLABLE PURE SYMBOLIC EXPERT SYSTEM. ZERO LLM APIS, PROBABILISTIC HALLUCINATIONS, OR HEURISTIC BYPASSES.
-          </p>
-          <div className="space-y-1.5 text-neutral-200 pt-1 text-xs">
-            <div className="flex flex-wrap items-center gap-1.5">
-              <span className="text-[#FF7844] font-bold">&gt;&gt;&gt;</span> <strong>ENGINE:</strong>{' '}
-              <span className="px-2 py-0.5 bg-[#13111C] border border-black text-[#49D49D] font-bold">
-                autoexpert_engine v1.0 [DETERMINISTIC SYMBOLIC EXPERT SYSTEM]
-              </span>
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
+        {/* Preferences Form */}
+        <div className="lg:col-span-6">
+          <NexusPanel
+            code="CALIBRATION"
+            title="Measurement & Trace Playback"
+            subtitle="Changes persist via GET / PUT /api/settings across Reports, Fleet, and Inference Lab."
+            padding="md"
+          >
+            {loading ? (
+              <div className="space-y-4 py-4 animate-pulse" aria-busy="true">
+                <div className="h-14 rounded bg-white/[0.05]" />
+                <div className="h-14 rounded bg-white/[0.05]" />
+                <div className="h-14 rounded bg-white/[0.05]" />
+              </div>
+            ) : (
+              <form onSubmit={handleSave} className="space-y-6">
+                {/* Distance Unit */}
+                <fieldset className="space-y-2">
+                  <legend className="font-mono text-[11px] uppercase tracking-wider text-[#8B96A5]">
+                    Odometer Distance Unit
+                  </legend>
+                  <div className="grid grid-cols-2 gap-3">
+                    {[
+                      { value: 'km', title: 'Kilometers (km)', sub: 'Metric standard' },
+                      { value: 'mi', title: 'Miles (mi)', sub: 'Imperial conversion' },
+                    ].map((opt) => {
+                      const active = distanceUnit === opt.value;
+                      return (
+                        <button
+                          key={opt.value}
+                          type="button"
+                          onClick={() => setDistanceUnit(opt.value)}
+                          aria-pressed={active}
+                          className={`rounded-md border p-3.5 text-left transition-all nexus-focus ${
+                            active
+                              ? 'border-[#00D9FF]/65 bg-[#08242E] shadow-nexus-cyan'
+                              : 'border-white/[0.08] bg-[#0B0F15] hover:border-white/[0.18]'
+                          }`}
+                        >
+                          <div className="flex items-center justify-between gap-2">
+                            <span className="font-display text-sm font-semibold text-[#E8EDF3]">
+                              {opt.title}
+                            </span>
+                            <span
+                              className={`h-2.5 w-2.5 rounded-full ${
+                                active ? 'bg-[#00D9FF]' : 'bg-white/[0.15]'
+                              }`}
+                              aria-hidden="true"
+                            />
+                          </div>
+                          <span className="mt-1 block font-mono text-[11px] text-[#8B96A5]">
+                            {opt.sub}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </fieldset>
+
+                {/* Pressure Unit */}
+                <fieldset className="space-y-2">
+                  <legend className="font-mono text-[11px] uppercase tracking-wider text-[#8B96A5]">
+                    Hydraulic &amp; Tyre Pressure Unit
+                  </legend>
+                  <div className="grid grid-cols-2 gap-3">
+                    {[
+                      { value: 'psi', title: 'PSI (lb/in²)', sub: 'Standard workshop gauge' },
+                      { value: 'bar', title: 'BAR (Metric)', sub: '1 bar ≈ 14.504 psi' },
+                    ].map((opt) => {
+                      const active = pressureUnit === opt.value;
+                      return (
+                        <button
+                          key={opt.value}
+                          type="button"
+                          onClick={() => setPressureUnit(opt.value)}
+                          aria-pressed={active}
+                          className={`rounded-md border p-3.5 text-left transition-all nexus-focus ${
+                            active
+                              ? 'border-[#00D9FF]/65 bg-[#08242E] shadow-nexus-cyan'
+                              : 'border-white/[0.08] bg-[#0B0F15] hover:border-white/[0.18]'
+                          }`}
+                        >
+                          <div className="flex items-center justify-between gap-2">
+                            <span className="font-display text-sm font-semibold text-[#E8EDF3]">
+                              {opt.title}
+                            </span>
+                            <span
+                              className={`h-2.5 w-2.5 rounded-full ${
+                                active ? 'bg-[#00D9FF]' : 'bg-white/[0.15]'
+                              }`}
+                              aria-hidden="true"
+                            />
+                          </div>
+                          <span className="mt-1 block font-mono text-[11px] text-[#8B96A5]">
+                            {opt.sub}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </fieldset>
+
+                {/* Playback Speed */}
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between gap-2">
+                    <label
+                      htmlFor="settings-playback-ms"
+                      className="flex items-center gap-1.5 font-mono text-[11px] uppercase tracking-wider text-[#8B96A5]"
+                    >
+                      <Sliders className="h-3.5 w-3.5 text-[#00D9FF]" aria-hidden="true" />
+                      TraceViewer Playback Interval (200–3000 ms)
+                    </label>
+                    <TelemetryBadge variant="lime">{playbackSpeed} MS / STEP</TelemetryBadge>
+                  </div>
+
+                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 sm:items-center">
+                    <input
+                      type="range"
+                      min={200}
+                      max={3000}
+                      step={50}
+                      value={playbackSpeed}
+                      onChange={(e) => setPlaybackSpeed(Number(e.target.value))}
+                      aria-label="TraceViewer Playback Interval Slider"
+                      className="sm:col-span-2 accent-[#00D9FF] cursor-pointer"
+                    />
+                    <input
+                      id="settings-playback-ms"
+                      type="number"
+                      min={200}
+                      max={3000}
+                      step={50}
+                      value={playbackSpeed}
+                      onChange={(e) => setPlaybackSpeed(Number(e.target.value))}
+                      className="nexus-input py-2 font-mono text-xs text-center"
+                    />
+                  </div>
+
+                  <div className="flex flex-wrap gap-1.5">
+                    {PLAYBACK_PRESETS.map((ms) => (
+                      <button
+                        key={ms}
+                        type="button"
+                        onClick={() => setPlaybackSpeed(ms)}
+                        className={`rounded border px-2 py-0.5 font-mono text-[11px] transition-colors nexus-focus ${
+                          playbackSpeed === ms
+                            ? 'border-[#00D9FF]/55 bg-[#08242E] text-[#00D9FF]'
+                            : 'border-white/[0.08] bg-[#0B0F15] text-[#8B96A5] hover:text-[#E8EDF3]'
+                        }`}
+                      >
+                        {ms} ms
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="flex justify-end border-t border-white/[0.07] pt-4">
+                  <HudButton
+                    type="submit"
+                    variant="lime"
+                    icon={Save}
+                    loading={saving}
+                  >
+                    Save Preferences
+                  </HudButton>
+                </div>
+              </form>
+            )}
+          </NexusPanel>
+        </div>
+
+        {/* Ground-Truth Hardware & Engine Specifications */}
+        <div className="lg:col-span-6">
+          <NexusPanel
+            code="SYS_SPECS"
+            title="Hardware & Engine Specifications"
+            subtitle="Verified runtime architecture of the AutoExpert deterministic expert system."
+            padding="md"
+            className="space-y-4"
+          >
+            <div className="rounded-md border border-[#00D9FF]/25 bg-[#08242E]/45 p-3.5 text-xs leading-relaxed text-[#E8EDF3]">
+              AutoExpert is a pure symbolic, deterministic expert system packaged as{' '}
+              <code className="text-[#00D9FF]">autoexpert_engine 1.0.0</code>. Zero external LLM
+              APIs, zero probabilistic weights, and zero heuristic bypasses.
             </div>
-            <div className="flex flex-wrap items-center gap-1.5">
-              <span className="text-[#FF7844] font-bold">&gt;&gt;&gt;</span> <strong>WORKING_MEMORY:</strong>{' '}
-              <span className="px-2 py-0.5 bg-[#13111C] border border-black text-[#FED156] font-bold">
-                3-VALUED LOGIC (TRUE, FALSE, UNKNOWN)
-              </span>
+
+            <div className="space-y-2.5">
+              {ENGINE_SPECS.map((spec, idx) => {
+                const Icon =
+                  idx === 0
+                    ? Cpu
+                    : idx === 1
+                      ? FileText
+                      : idx === 3
+                        ? Server
+                        : idx === 4
+                          ? Database
+                          : SettingsIcon;
+
+                return (
+                  <div
+                    key={spec.label}
+                    className="rounded-md border border-white/[0.08] bg-[#0A0E13] p-3.5 space-y-1.5"
+                  >
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <span className="flex items-center gap-2 font-mono text-[11px] uppercase tracking-wider text-[#8B96A5]">
+                        <Icon className="h-3.5 w-3.5 text-[#00D9FF]" aria-hidden="true" />
+                        {spec.label}
+                      </span>
+                      <TelemetryBadge variant={spec.variant} size="sm">
+                        {spec.badge}
+                      </TelemetryBadge>
+                    </div>
+                    <div className="font-display text-sm font-semibold text-[#E8EDF3]">
+                      {spec.value}
+                    </div>
+                    <p className="font-mono text-[11px] leading-relaxed text-[#8B96A5]">
+                      {spec.detail}
+                    </p>
+                  </div>
+                );
+              })}
             </div>
-            <div className="flex flex-wrap items-center gap-1.5">
-              <span className="text-[#FF7844] font-bold">&gt;&gt;&gt;</span> <strong>CONFLICT_RESOLUTION:</strong>{' '}
-              <span className="px-2 py-0.5 bg-[#13111C] border border-black text-white font-bold">
-                REFRACTION &gt;&gt; SAFETY &gt;&gt; SPECIFICITY &gt;&gt; PRIORITY &gt;&gt; RULE_ID
-              </span>
-            </div>
-            <div className="flex flex-wrap items-center gap-1.5">
-              <span className="text-[#FF7844] font-bold">&gt;&gt;&gt;</span> <strong>PERSISTENCE_LAYER:</strong>{' '}
-              <span className="px-2 py-0.5 bg-[#13111C] border border-black text-[#00E5FF] font-bold">
-                SQLITE 3 + SQLALCHEMY 2.0 ORM (IMMUTABLE AUDITS)
-              </span>
-            </div>
-          </div>
+          </NexusPanel>
         </div>
       </div>
-    </div>
+    </PageTransition>
   );
 }
