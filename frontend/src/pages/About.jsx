@@ -73,8 +73,8 @@ const STACK_GROUPS = [
     packageName: 'autoexpert_engine',
     items: [
       'Python 3.11+ pure-symbolic engine (shared by FastAPI & Google Colab)',
-      'Pydantic v2 rule, fact, proof-tree, and trace schemas',
-      'Draft-07 JSON Schema validation via jsonschema against rule_schema.json',
+      'Pydantic v2 schemas & Draft-07 jsonschema validation (rule_schema.json)',
+      'Verified by 28 Pytest unit & integration tests across 8 test modules',
       'Zero LLM API calls, zero black-box ML weights, zero external paid inference',
     ],
   },
@@ -168,7 +168,9 @@ export default function About() {
           <div className="font-display text-3xl font-bold text-[#E8EDF3] tabular-nums">
             {kbStats.total_rules}
           </div>
-          <p className="text-xs text-[#8B96A5]">20 Car · 20 Moto · 15 Maint</p>
+          <p className="text-xs text-[#8B96A5]">
+            20 Car · 20 Moto · 15 Maint (49 faults + 6 chaining)
+          </p>
         </NexusPanel>
 
         <NexusPanel padding="md" className="space-y-1.5">
@@ -214,7 +216,7 @@ export default function About() {
             <p className="text-sm leading-relaxed text-[#8B96A5]">
               Starts from initial vehicle context and reported symptoms, filters rules matching
               vehicle type, cooling architecture, and fuel type, then iterates up to a fixed point
-              (max 50 passes). Early passes assert derived intermediate facts (such as{' '}
+              (max 50 passes). Early passes assert 8 multi-hop derived intermediate facts (such as{' '}
               <code className="text-[#E8EDF3]">coolant_loss_detected</code> or{' '}
               <code className="text-[#E8EDF3]">power_supply_insufficient</code>) that unlock deeper
               fault conclusions in subsequent passes.
