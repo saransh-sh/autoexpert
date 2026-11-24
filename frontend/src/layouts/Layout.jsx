@@ -1,139 +1,271 @@
-import React from 'react';
-import { NavLink, Outlet } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import {
-  LayoutDashboard,
-  Car,
-  Stethoscope,
-  FileText,
-  Wrench,
-  BookOpen,
   Activity,
+  BookOpen,
+  Car,
+  Cpu,
+  FileText,
   GraduationCap,
+  LayoutDashboard,
+  Menu,
   Settings,
-  ShieldAlert,
-  Flame,
-  CheckCircle2,
+  Stethoscope,
+  Wrench,
+  X,
 } from 'lucide-react';
 
 const NAV_ITEMS = [
   { path: '/', label: 'Overview', code: 'SYS_01', icon: LayoutDashboard },
-  { path: '/vehicles', label: 'My Vehicles', code: 'FLT_02', icon: Car },
-  { path: '/diagnose', label: 'Diagnose Vehicle', code: 'DIAG_03', icon: Stethoscope },
-  { path: '/reports', label: 'Diagnostic Reports', code: 'AUD_04', icon: FileText },
+  { path: '/vehicles', label: 'Vehicles', code: 'FLT_02', icon: Car },
+  { path: '/diagnose', label: 'Diagnose', code: 'DIAG_03', icon: Stethoscope },
+  { path: '/reports', label: 'Reports', code: 'AUD_04', icon: FileText },
   { path: '/maintenance', label: 'Maintenance', code: 'MNT_05', icon: Wrench },
-  { path: '/knowledge-base', label: 'Knowledge Base', code: 'KB_06', icon: BookOpen },
-  { path: '/monitor', label: 'Expert System Monitor', code: 'MON_07', icon: Activity },
-  { path: '/demo', label: 'Academic Demo', code: 'EVAL_08', icon: GraduationCap },
-  { path: '/settings', label: 'Settings', code: 'CFG_09', icon: Settings },
+  { path: '/knowledge-base', label: 'Knowledge', code: 'KB_06', icon: BookOpen },
+  { path: '/monitor', label: 'Monitor', code: 'MON_07', icon: Activity },
+  { path: '/demo', label: 'Demo', code: 'EVAL_08', icon: GraduationCap },
+  { path: '/about', label: 'System Info', code: 'ARCH_09', icon: Cpu },
+  { path: '/settings', label: 'Settings', code: 'CFG_10', icon: Settings },
 ];
 
 export default function Layout() {
+  const location = useLocation();
+  const shouldReduceMotion = useReducedMotion();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const isHome = location.pathname === '/';
+
+  useEffect(() => {
+    setMobileMenuOpen(false);
+  }, [location.pathname]);
+
+  useEffect(() => {
+    if (!mobileMenuOpen) return undefined;
+    const onKeyDown = (e) => {
+      if (e.key === 'Escape') setMobileMenuOpen(false);
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [mobileMenuOpen]);
+
   return (
-    <div className="flex min-h-screen bg-[#13111C] text-[#FFFDF9] font-sans selection:bg-[#FF7844] selection:text-black">
-      {/* Sidebar Tactical Chassis */}
-      <aside className="w-64 bg-[#161320] border-r-2 border-black flex flex-col shrink-0">
-        {/* Brand / Logo Stamp */}
-        <div className="p-4 border-b-2 border-black bg-[#1E1A29]">
-          <div className="flex items-center gap-3">
-            <div className="px-2.5 py-1.5 bg-[#FF7844] text-black font-mono font-black text-xs tracking-wider border-2 border-black shadow-[2px_2px_0px_#000000] -rotate-1">
-              [AE // 2026]
+    <div className="flex min-h-screen flex-col bg-[#07090C] text-[#E8EDF3] font-sans">
+      {/* Architectural Cockpit Navigation Bar */}
+      <header className="sticky top-0 z-40 h-16 border-b border-white/[0.08] bg-[#07090C]/90 backdrop-blur-md">
+        <div className="mx-auto flex h-full max-w-[1520px] items-center justify-between gap-3 px-4 sm:px-6">
+          {/* Brand Identity */}
+          <Link
+            to="/"
+            className="flex items-center gap-2.5 shrink-0 rounded-md py-1 pr-2 nexus-focus"
+          >
+            <div className="flex h-8 w-8 items-center justify-center rounded border border-[#00D9FF]/40 bg-[#0C141C]">
+              <svg
+                className="h-[18px] w-[18px] text-[#00D9FF]"
+                viewBox="0 0 24 24"
+                fill="none"
+                aria-hidden="true"
+              >
+                <path
+                  d="M12 2.5L20.5 7.4V16.6L12 21.5L3.5 16.6V7.4L12 2.5Z"
+                  stroke="currentColor"
+                  strokeWidth="1.6"
+                />
+                <circle cx="12" cy="12" r="2.75" fill="currentColor" />
+              </svg>
             </div>
-            <div>
-              <h1 className="text-base font-black tracking-tight text-white uppercase font-sans">
+            <div className="leading-none">
+              <span className="block font-display text-sm font-bold tracking-tight text-[#E8EDF3]">
+                NEXUS
+              </span>
+              <span className="mt-0.5 block font-mono text-[9.5px] font-medium uppercase tracking-[0.18em] text-[#00D9FF]">
                 AUTOEXPERT
-              </h1>
-              <span className="text-[10px] font-bold tracking-wider uppercase text-[#49D49D] font-mono block">
-                HACKTOBER // VEHICLE INTEL
               </span>
             </div>
-          </div>
-          <div className="mt-3 px-2 py-1 bg-[#FED156] border-2 border-black text-[10px] text-black font-mono font-bold shadow-[2px_2px_0px_#000000] flex items-center gap-1.5 uppercase tracking-wide">
-            <ShieldAlert className="w-3.5 h-3.5 text-black shrink-0" />
-            <span className="truncate">PURE_SYMBOLIC // NO_LLM</span>
+          </Link>
+
+          {/* Desktop Single-Line Cockpit Navigation */}
+          <nav
+            aria-label="Primary navigation"
+            className="hidden lg:flex h-full items-center gap-0.5 xl:gap-1"
+          >
+            {NAV_ITEMS.map((item) => {
+              const Icon = item.icon;
+              return (
+                <NavLink
+                  key={item.path}
+                  to={item.path}
+                  end={item.path === '/'}
+                  className={({ isActive }) =>
+                    `relative flex h-full items-center gap-1.5 whitespace-nowrap px-2 xl:px-2.5 text-[12px] font-medium transition-colors duration-150 nexus-focus ${
+                      isActive
+                        ? 'text-[#E8EDF3]'
+                        : 'text-[#8B96A5] hover:text-[#E8EDF3]'
+                    }`
+                  }
+                >
+                  {({ isActive }) => (
+                    <>
+                      <Icon
+                        className={`h-3.5 w-3.5 shrink-0 transition-colors ${
+                          isActive ? 'text-[#00D9FF]' : 'text-[#5E6B7D]'
+                        }`}
+                        aria-hidden="true"
+                      />
+                      <span>{item.label}</span>
+                      {isActive ? (
+                        shouldReduceMotion ? (
+                          <span
+                            aria-hidden="true"
+                            className="absolute inset-x-1.5 bottom-0 h-[2px] rounded-full bg-[#00D9FF]"
+                          />
+                        ) : (
+                          <motion.span
+                            layoutId="nexus-active-rail"
+                            transition={{
+                              type: 'spring',
+                              stiffness: 420,
+                              damping: 36,
+                            }}
+                            aria-hidden="true"
+                            className="absolute inset-x-1.5 bottom-0 h-[2px] rounded-full bg-[#00D9FF]"
+                          />
+                        )
+                      ) : null}
+                    </>
+                  )}
+                </NavLink>
+              );
+            })}
+          </nav>
+
+          {/* Right Ambient Telemetry Indicator & Mobile Trigger */}
+          <div className="flex items-center gap-2.5 shrink-0">
+            <div
+              title="Deterministic 3-Valued Logic Symbolic Inference Core Active"
+              className="hidden sm:flex items-center gap-2 rounded border border-white/[0.08] bg-[#10151D] px-2.5 py-1.5 font-mono text-[10.5px] uppercase tracking-wider text-[#8B96A5]"
+            >
+              <span className="relative flex h-2 w-2" aria-hidden="true">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#C7FF4A] opacity-60" />
+                <span className="relative inline-flex h-2 w-2 rounded-full bg-[#C7FF4A]" />
+              </span>
+              <span className="text-[#E8EDF3] font-medium">ONLINE</span>
+              <span className="hidden 2xl:inline text-white/20">/</span>
+              <span className="hidden 2xl:inline text-[#00D9FF]">3VL CORE</span>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setMobileMenuOpen((prev) => !prev)}
+              aria-expanded={mobileMenuOpen}
+              aria-controls="mobile-cockpit-nav"
+              aria-label={mobileMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
+              className="inline-flex lg:hidden h-9 w-9 items-center justify-center rounded-md border border-white/[0.1] bg-[#10151D] text-[#E8EDF3] hover:border-[#00D9FF]/40 hover:text-[#00D9FF] transition-colors nexus-focus"
+            >
+              {mobileMenuOpen ? (
+                <X className="h-[18px] w-[18px]" aria-hidden="true" />
+              ) : (
+                <Menu className="h-[18px] w-[18px]" aria-hidden="true" />
+              )}
+            </button>
           </div>
         </div>
 
-        {/* Navigation Matrix */}
-        <nav className="flex-1 p-2.5 space-y-1.5 overflow-y-auto">
-          {NAV_ITEMS.map((item) => {
-            const Icon = item.icon;
-            return (
-              <NavLink
-                key={item.path}
-                to={item.path}
-                className={({ isActive }) =>
-                  `flex items-center justify-between px-3 py-2 text-xs uppercase tracking-wider transition-all duration-100 ${
-                    isActive
-                      ? 'bg-[#FF7844] text-black font-black border-2 border-black shadow-[3px_3px_0px_#000000] translate-x-1'
-                      : 'border-2 border-transparent text-neutral-300 font-bold hover:text-black hover:bg-[#FED156] hover:border-black hover:shadow-[3px_3px_0px_#000000]'
-                  }`
-                }
+        {/* Mobile Cockpit Navigation Drawer */}
+        <AnimatePresence>
+          {mobileMenuOpen ? (
+            <motion.div
+              id="mobile-cockpit-nav"
+              initial={shouldReduceMotion ? false : { opacity: 0, y: -8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={shouldReduceMotion ? undefined : { opacity: 0, y: -6 }}
+              transition={{ duration: 0.18, ease: 'easeOut' }}
+              className="lg:hidden border-b border-white/[0.1] bg-[#0B0F15] shadow-nexus-elevated"
+            >
+              <nav
+                aria-label="Mobile navigation"
+                className="mx-auto grid max-w-2xl grid-cols-1 gap-1 px-4 py-3 sm:grid-cols-2"
               >
-                {({ isActive }) => (
-                  <>
-                    <div className="flex items-center gap-2.5 truncate">
-                      <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-black' : 'text-neutral-400 group-hover:text-black'}`} />
-                      <span className="truncate">{item.label}</span>
-                    </div>
-                    <span className={`text-[9px] font-mono font-bold px-1.5 py-0.5 border border-black/40 ${isActive ? 'bg-black/15 text-black' : 'bg-black/20 text-neutral-400'} shrink-0`}>
-                      {item.code}
-                    </span>
-                  </>
-                )}
-              </NavLink>
-            );
-          })}
-        </nav>
+                {NAV_ITEMS.map((item) => {
+                  const Icon = item.icon;
+                  return (
+                    <NavLink
+                      key={item.path}
+                      to={item.path}
+                      end={item.path === '/'}
+                      className={({ isActive }) =>
+                        `flex items-center justify-between rounded-md border px-3 py-2.5 text-sm font-medium transition-colors nexus-focus ${
+                          isActive
+                            ? 'border-[#00D9FF]/40 bg-[#00D9FF]/[0.08] text-[#E8EDF3]'
+                            : 'border-transparent text-[#8B96A5] hover:bg-white/[0.04] hover:text-[#E8EDF3]'
+                        }`
+                      }
+                    >
+                      {({ isActive }) => (
+                        <>
+                          <span className="flex items-center gap-2.5">
+                            <Icon
+                              className={`h-4 w-4 ${
+                                isActive ? 'text-[#00D9FF]' : 'text-[#5E6B7D]'
+                              }`}
+                              aria-hidden="true"
+                            />
+                            <span>{item.label}</span>
+                          </span>
+                          <span className="font-mono text-[10px] uppercase tracking-wider text-[#5E6B7D]">
+                            {item.code}
+                          </span>
+                        </>
+                      )}
+                    </NavLink>
+                  );
+                })}
+              </nav>
+            </motion.div>
+          ) : null}
+        </AnimatePresence>
+      </header>
 
-        {/* Telemetry Hardware Footer */}
-        <div className="p-3 border-t-2 border-black bg-[#13111C] text-[10px] space-y-2">
-          <div className="flex items-center justify-between">
-            <span className="font-mono text-neutral-400 uppercase">// ENGINE:</span>
-            <span className="px-1.5 py-0.5 bg-[#49D49D] text-black font-mono font-bold border border-black text-[9px] shadow-[1px_1px_0px_#000000]">
-              CORE_V1.0
-            </span>
-          </div>
-          <div className="flex items-center justify-between">
-            <span className="font-mono text-neutral-400 uppercase">// LOGIC:</span>
-            <span className="px-1.5 py-0.5 bg-[#FED156] text-black font-mono font-bold border border-black text-[9px] shadow-[1px_1px_0px_#000000]">
-              3VL_DETERMINISTIC
-            </span>
-          </div>
-          <div className="flex items-center justify-between">
-            <span className="font-mono text-neutral-400 uppercase">// RESOLUTION:</span>
-            <span className="px-1.5 py-0.5 bg-[#FF4785] text-white font-mono font-bold border border-black text-[9px] shadow-[1px_1px_0px_#000000]">
-              5-TIER_HIERARCHY
-            </span>
-          </div>
-        </div>
-      </aside>
-
-      {/* Main Content Area */}
-      <div className="flex-1 flex flex-col min-w-0">
-        {/* Topbar Telemetry Ribbon */}
-        <header className="h-16 border-b-2 border-black bg-[#161320] px-6 flex items-center justify-between shrink-0">
-          <div className="flex items-center gap-3">
-            <span className="bg-[#49D49D] text-black border-2 border-black px-3 py-1 font-mono font-bold text-xs shadow-[2px_2px_0px_#000000] flex items-center gap-2">
-              <span className="inline-block w-2 h-2 bg-black rounded-full animate-pulse"></span>
-              SYS_STATUS: ONLINE // DETERMINISTIC CORE
-            </span>
-          </div>
-          <div className="flex items-center gap-3">
-            <span className="bg-[#FED156] text-black border-2 border-black px-2.5 py-1 font-mono font-bold text-[11px] shadow-[2px_2px_0px_#000000] hidden sm:inline-block">
-              3VL WORKING MEMORY
-            </span>
-            <span className="bg-[#FF4785] text-white border-2 border-black px-2.5 py-1 font-mono font-bold text-[11px] shadow-[2px_2px_0px_#000000] rotate-1 flex items-center gap-1.5">
-              <Flame className="w-3.5 h-3.5" />
-              HACKTOBER 2026
-            </span>
-          </div>
-        </header>
-
-        {/* Page Outlet with Retro Dot Matrix Canvas */}
-        <main className="flex-1 p-6 md:p-8 overflow-y-auto bg-[#13111C] retro-dots">
+      {/* Main Content Area: full-bleed on /, spacious container framing on inner routes */}
+      {isHome ? (
+        <main className="flex-1 w-full min-w-0">
           <Outlet />
         </main>
-      </div>
+      ) : (
+        <main className="flex-1 w-full min-w-0 nexus-dot-bg">
+          <div className="mx-auto w-full max-w-[1400px] px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
+            <Outlet />
+          </div>
+        </main>
+      )}
+
+      {/* Architectural System Footer */}
+      <footer className="border-t border-white/[0.07] bg-[#07090C]">
+        <div className="mx-auto flex max-w-[1520px] flex-col gap-3 px-4 py-5 text-xs text-[#8B96A5] sm:flex-row sm:items-center sm:justify-between sm:px-6">
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+            <span className="font-display font-semibold text-[#E8EDF3]">
+              NEXUS AUTOEXPERT
+            </span>
+            <span className="text-white/20">|</span>
+            <span className="font-mono text-[11px] text-[#8B96A5]">
+              Symbolic 3VL Rule Engine · Zero LLM Dependencies
+            </span>
+          </div>
+          <div className="flex flex-wrap items-center gap-4">
+            <Link to="/knowledge-base" className="hover:text-[#00D9FF] transition-colors">
+              Knowledge Base
+            </Link>
+            <Link to="/monitor" className="hover:text-[#00D9FF] transition-colors">
+              Engine Monitor
+            </Link>
+            <Link to="/demo" className="hover:text-[#00D9FF] transition-colors">
+              Benchmarks
+            </Link>
+            <Link to="/about" className="hover:text-[#00D9FF] transition-colors">
+              System Info
+            </Link>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }

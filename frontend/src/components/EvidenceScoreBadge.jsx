@@ -1,22 +1,37 @@
 import React from 'react';
 import { Target } from 'lucide-react';
+import { twMerge } from 'tailwind-merge';
+import clsx from 'clsx';
 
-export default function EvidenceScoreBadge({ score }) {
+export default function EvidenceScoreBadge({
+  score,
+  label = 'EVIDENCE MATCH',
+  className = '',
+}) {
   const numericScore = typeof score === 'number' ? score : 100.0;
 
-  let colorClasses = 'bg-[#FF4785] text-white border-2 border-black shadow-[2px_2px_0px_#000000]';
+  let toneClasses = 'bg-[#290D16] text-[#FF6B84] border-[#FF3B5C]/45';
   if (numericScore >= 90) {
-    colorClasses = 'bg-[#49D49D] text-black border-2 border-black shadow-[2px_2px_0px_#000000]';
+    toneClasses = 'bg-[#17240A] text-[#C7FF4A] border-[#C7FF4A]/35';
   } else if (numericScore >= 70) {
-    colorClasses = 'bg-[#FED156] text-black border-2 border-black shadow-[2px_2px_0px_#000000]';
+    toneClasses = 'bg-[#261B08] text-[#FBBF24] border-[#F59E0B]/40';
   }
 
   return (
-    <div
-      className={`inline-flex items-center gap-1.5 px-3 py-1 text-xs font-mono font-black uppercase tracking-wider transition-transform hover:rotate-1 ${colorClasses}`}
+    <span
+      title="Rule-condition match percentage (satisfied premises / total conditions) — not a statistical diagnostic probability."
+      className={twMerge(
+        clsx(
+          'inline-flex items-center gap-1.5 rounded border px-2.5 py-1 font-mono text-[11px] font-medium uppercase tracking-wider leading-none whitespace-nowrap',
+          toneClasses,
+          className
+        )
+      )}
     >
-      <Target className="w-3.5 h-3.5 shrink-0" />
-      <span>[ EVIDENCE_MATCH: {numericScore}% ]</span>
-    </div>
+      <Target className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+      <span>
+        {label}: {numericScore}%
+      </span>
+    </span>
   );
 }

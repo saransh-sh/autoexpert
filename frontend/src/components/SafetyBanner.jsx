@@ -1,37 +1,49 @@
 import React from 'react';
 import { AlertTriangle, ShieldAlert } from 'lucide-react';
+import TelemetryBadge from './ui/TelemetryBadge';
 
-export default function SafetyBanner({ alert }) {
+export default function SafetyBanner({ alert, className = '' }) {
   if (!alert || !alert.triggered) return null;
 
   return (
-    <div className="bg-[#2C131D] border-3 border-black p-5 mb-6 shadow-[5px_5px_0px_#000000] relative rotate-[-0.5deg]">
-      {/* Top warning ribbon */}
-      <div className="bg-[#FF4785] text-white border-2 border-black text-[11px] font-black uppercase tracking-widest px-3 py-1.5 mb-3 flex items-center justify-between shadow-[2px_2px_0px_#000000]">
-        <span>/// CRITICAL_SAFETY_HALT ///</span>
-        <span>PROTOCOL: EMERGENCY_INTERLOCK</span>
+    <div
+      role="alert"
+      aria-live="assertive"
+      className={`mb-6 rounded-md border border-[#FF3B5C]/50 border-l-4 border-l-[#FF3B5C] bg-[#160A0E] p-5 shadow-nexus-crimson ${className}`}
+    >
+      <div className="mb-3 flex flex-wrap items-center justify-between gap-2 border-b border-[#FF3B5C]/25 pb-3">
+        <div className="flex items-center gap-2.5">
+          <TelemetryBadge variant="critical" dot pulse>
+            CRITICAL SAFETY HALT
+          </TelemetryBadge>
+          {alert.fact ? (
+            <span className="font-mono text-[11px] uppercase tracking-wider text-[#FF8FA3]">
+              TRIGGER: {alert.fact}
+            </span>
+          ) : null}
+        </div>
+        <span className="font-mono text-[11px] uppercase tracking-widest text-[#FF6B84]">
+          {alert.level || 'EMERGENCY_INTERLOCK'}
+        </span>
       </div>
 
       <div className="flex items-start gap-4">
-        <div className="p-3 bg-[#FF7844] text-black border-2 border-black shrink-0 shadow-[3px_3px_0px_#000000] -rotate-2">
-          <ShieldAlert className="w-7 h-7" />
+        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-md border border-[#FF3B5C]/40 bg-[#290D16] text-[#FF3B5C]">
+          <ShieldAlert className="h-6 w-6" aria-hidden="true" />
         </div>
-        <div className="space-y-3 flex-1">
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="bg-[#FED156] text-black border-2 border-black text-[10px] font-black px-2.5 py-0.5 uppercase tracking-widest shadow-[2px_2px_0px_#000000]">
-              [ HAZARD_LEVEL: CRITICAL_01 ]
-            </span>
-            <h3 className="text-sm font-black text-white uppercase tracking-wider font-sans">
-              CRITICAL HAZARD DETECTED — CEASE VEHICLE OPERATION IMMEDIATELY
-            </h3>
-          </div>
-          <p className="text-xs text-white font-mono leading-relaxed bg-[#13111C] p-3.5 border-2 border-black shadow-[3px_3px_0px_#000000]">
+        <div className="flex-1 space-y-3 min-w-0">
+          <h3 className="font-display text-sm font-semibold uppercase tracking-wide text-[#E8EDF3] sm:text-base">
+            Critical Hazard Detected — Cease Vehicle Operation Immediately
+          </h3>
+          <p className="rounded border border-white/[0.08] bg-[#0B0608] p-3.5 font-mono text-xs leading-relaxed text-[#E8EDF3]">
             {alert.message}
           </p>
-          <div className="flex items-start gap-2 text-[11px] text-[#FFAAB8] bg-[#1A0A0E] p-3 border-2 border-black shadow-[2px_2px_0px_#000000] uppercase font-bold">
-            <AlertTriangle className="w-4 h-4 shrink-0 text-[#FF4785] mt-0.5" />
+          <div className="flex items-start gap-2.5 rounded border border-[#FF3B5C]/25 bg-[#1F0B11] p-3 text-xs leading-relaxed text-[#FFC2CD]">
+            <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-[#FF3B5C]" aria-hidden="true" />
             <span>
-              NOTICE: Interactive diagnostic sequence terminated. Reasoning core halted to prioritize operator &amp; vehicle safety. Certified mechanical inspection required before engine restart.
+              Interactive diagnostic sequence terminated. Reasoning engine halted to prioritize
+              operator and vehicle safety. Pull over safely when possible and obtain certified
+              mechanical inspection before restarting or driving.
             </span>
           </div>
         </div>
