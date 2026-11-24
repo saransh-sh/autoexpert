@@ -64,6 +64,45 @@ function createParticleSpriteTexture() {
 }
 
 /**
+ * Generates an offscreen grayscale alphaMap for the volumetric scan veil so
+ * left/right edges and the upper boundary feather cleanly to 0 opacity.
+ */
+function createScanVeilTexture() {
+  if (typeof document === 'undefined') return null;
+  const size = 128;
+  const canvas = document.createElement('canvas');
+  canvas.width = size;
+  canvas.height = size;
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return null;
+
+  const imgData = ctx.createImageData(size, size);
+  const data = imgData.data;
+
+  for (let y = 0; y < size; y += 1) {
+    // Canvas y=0 maps to UV v=1 (top of plane); y=size-1 maps to UV v=0 (floor)
+    const yNorm = y / (size - 1);
+    const vy = Math.pow(Math.max(0, (yNorm - 0.1) / 0.9), 2.15);
+
+    for (let x = 0; x < size; x += 1) {
+      const u = x / (size - 1);
+      const hx = Math.pow(Math.sin(u * Math.PI), 1.8);
+      const lum = Math.round(255 * hx * vy);
+      const idx = (y * size + x) * 4;
+      data[idx] = lum;
+      data[idx + 1] = lum;
+      data[idx + 2] = lum;
+      data[idx + 3] = 255;
+    }
+  }
+
+  ctx.putImageData(imgData, 0, 0);
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.needsUpdate = true;
+  return texture;
+}
+
+/**
  * Builds deterministic radial calibration tick marks for the ground telemetry ring.
  */
 function buildTickGeometry(radius, tickCount, innerOffset, outerOffset) {
@@ -117,6 +156,7 @@ export default function HologramEffects({
     particleGeo,
     particleSeeds,
     particleTexture,
+    scanVeilTexture,
     tickMaterial,
     innerTickMaterial,
     particleMaterial,
@@ -162,6 +202,7 @@ export default function HologramEffects({
     pGeo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
 
     const tex = createParticleSpriteTexture();
+    const veilTex = createScanVeilTexture();
 
     const tMat = new THREE.LineBasicMaterial({
       color: '#00D9FF',
@@ -191,6 +232,7 @@ export default function HologramEffects({
       particleGeo: pGeo,
       particleSeeds: seeds,
       particleTexture: tex,
+      scanVeilTexture: veilTex,
       tickMaterial: tMat,
       innerTickMaterial: itMat,
       particleMaterial: pMat,
@@ -200,6 +242,9 @@ export default function HologramEffects({
   useEffect(() => {
     if (particleTexture) {
       particleTexture.needsUpdate = true;
+    }
+    if (scanVeilTexture) {
+      scanVeilTexture.needsUpdate = true;
     }
     const rootSnapshot = effectsRootRef.current;
     return () => {
@@ -212,6 +257,9 @@ export default function HologramEffects({
       if (particleTexture) {
         particleTexture.dispose();
       }
+      if (scanVeilTexture) {
+        scanVeilTexture.dispose();
+      }
       disposeObjectTree(rootSnapshot);
     };
   }, [
@@ -222,6 +270,7 @@ export default function HologramEffects({
     innerTickMaterial,
     particleMaterial,
     particleTexture,
+    scanVeilTexture,
   ]);
 
   useFrame((state, delta) => {
@@ -238,14 +287,14 @@ export default function HologramEffects({
         );
       } else if (reducedMotion) {
         scanGateRef.current.position.x = 0.18;
-        scanMatRef.current.opacity = 0.11;
-        scanBeamMatRef.current.opacity = 0.55;
+        scanMatRef.current.opacity = 0.18;
+        scanBeamMatRef.current.opacity = 0.6;
       } else {
         const sweep = Math.sin(elapsed * 0.88);
         scanGateRef.current.position.x = sweep * scanSpan;
         const edgeFade = 1 - Math.pow(Math.abs(sweep), 3.5);
-        scanMatRef.current.opacity = 0.04 + edgeFade * 0.12;
-        scanBeamMatRef.current.opacity = 0.2 + edgeFade * 0.65;
+        scanMatRef.current.opacity = 0.06 + edgeFade * 0.18;
+        scanBeamMatRef.current.opacity = 0.22 + edgeFade * 0.65;
       }
     }
 
@@ -344,38 +393,29 @@ export default function HologramEffects({
         />
       </mesh>
 
-      {/* Sweeping Cyan Lidar Scan Plane */}
+      {/* Sweeping Cyan Lidar Scan Veil */}
       <group ref={scanGateRef} position={[0, scanHeight * 0.5, 0]}>
         <mesh rotation={[0, Math.PI / 2, 0]}>
           <planeGeometry args={[scanDepth, scanHeight]} />
           <meshBasicMaterial
             ref={scanMatRef}
             color="#00D9FF"
+            alphaMap={scanVeilTexture}
             transparent
-            opacity={scannerActive ? 0.11 : 0}
+            opacity={scannerActive ? 0.22 : 0}
             blending={THREE.AdditiveBlending}
             side={THREE.DoubleSide}
             depthWrite={false}
           />
         </mesh>
-        {/* Top & Floor Laser Edge Lines */}
+        {/* Floor Laser Filament */}
         <mesh position={[0, -scanHeight * 0.495, 0]}>
-          <boxGeometry args={[0.014, 0.012, scanDepth]} />
+          <boxGeometry args={[0.014, 0.012, scanDepth * 0.92]} />
           <meshBasicMaterial
             ref={scanBeamMatRef}
             color="#00D9FF"
             transparent
             opacity={scannerActive ? 0.65 : 0}
-            blending={THREE.AdditiveBlending}
-            depthWrite={false}
-          />
-        </mesh>
-        <mesh position={[0, scanHeight * 0.495, 0]}>
-          <boxGeometry args={[0.01, 0.01, scanDepth * 0.62]} />
-          <meshBasicMaterial
-            color="#00D9FF"
-            transparent
-            opacity={scannerActive ? 0.35 : 0}
             blending={THREE.AdditiveBlending}
             depthWrite={false}
           />

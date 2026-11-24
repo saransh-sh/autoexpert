@@ -490,7 +490,9 @@ export default function Overview() {
                     </span>
                     {selectedVehicle ? (
                       <span className="hidden sm:inline font-mono text-[10.5px] text-[#8B96A5] truncate">
-                        · {selectedVehicle.year} {selectedVehicle.manufacturer} {selectedVehicle.model}
+                        {selectedVehicle.vehicle_type === activeVehicleType
+                          ? `· ${selectedVehicle.year} ${selectedVehicle.manufacturer} ${selectedVehicle.model}`
+                          : `· Preview Mode (Fleet: ${selectedVehicle.year} ${selectedVehicle.manufacturer} ${selectedVehicle.model})`}
                       </span>
                     ) : null}
                   </div>
@@ -498,33 +500,33 @@ export default function Overview() {
                   <div
                     role="group"
                     aria-label="Vehicle hologram platform"
-                    className="inline-flex items-center rounded-md border border-white/[0.1] bg-[#07090C] p-0.5"
+                    className="inline-flex items-center gap-1 rounded-md border border-white/[0.1] bg-[#07090C] p-1"
                   >
                     <button
                       type="button"
                       onClick={() => setActiveVehicleType('car')}
                       aria-pressed={activeVehicleType === 'car'}
-                      className={`inline-flex items-center gap-1.5 rounded px-3 py-1.5 font-mono text-[11px] uppercase tracking-wider transition-colors nexus-focus ${
+                      className={`inline-flex items-center gap-1.5 rounded px-3 py-1.5 font-mono text-[11px] uppercase tracking-wider transition-none nexus-focus ${
                         activeVehicleType === 'car'
                           ? 'bg-[#00D9FF] font-semibold text-[#07090C]'
-                          : 'text-[#8B96A5] hover:text-[#E8EDF3]'
+                          : 'bg-[#10151D] text-[#C2CBD6] hover:bg-[#1B2430] hover:text-[#E8EDF3]'
                       }`}
                     >
-                      <Car className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
-                      <span>Car</span>
+                      <Car className="h-3.5 w-3.5 shrink-0 text-current" aria-hidden="true" />
+                      <span className="text-current">Car</span>
                     </button>
                     <button
                       type="button"
                       onClick={() => setActiveVehicleType('motorcycle')}
                       aria-pressed={activeVehicleType === 'motorcycle'}
-                      className={`inline-flex items-center gap-1.5 rounded px-3 py-1.5 font-mono text-[11px] uppercase tracking-wider transition-colors nexus-focus ${
+                      className={`inline-flex items-center gap-1.5 rounded px-3 py-1.5 font-mono text-[11px] uppercase tracking-wider transition-none nexus-focus ${
                         activeVehicleType === 'motorcycle'
                           ? 'bg-[#00D9FF] font-semibold text-[#07090C]'
-                          : 'text-[#8B96A5] hover:text-[#E8EDF3]'
+                          : 'bg-[#10151D] text-[#C2CBD6] hover:bg-[#1B2430] hover:text-[#E8EDF3]'
                       }`}
                     >
-                      <Bike className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
-                      <span>Motorcycle</span>
+                      <Bike className="h-3.5 w-3.5 shrink-0 text-current" aria-hidden="true" />
+                      <span className="text-current">Motorcycle</span>
                     </button>
                   </div>
                 </div>

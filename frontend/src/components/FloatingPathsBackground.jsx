@@ -29,10 +29,10 @@ function getStrokePalette(variant, index) {
     return {
       stroke: isLimeAccent ? '#C7FF4A' : isWhiteThread ? '#E8EDF3' : '#00D9FF',
       baseOpacity: isLimeAccent
-        ? 0.08
+        ? 0.12
         : isWhiteThread
-          ? 0.045 + (index % 4) * 0.012
-          : 0.07 + (index % 6) * 0.02,
+          ? 0.075 + (index % 4) * 0.015
+          : 0.11 + (index % 6) * 0.02,
     };
   }
 
@@ -149,9 +149,9 @@ export default function FloatingPathsBackground({
           fill="none"
           style={{
             maskImage:
-              'radial-gradient(ellipse 88% 82% at 50% 50%, #000000 42%, transparent 100%)',
+              'radial-gradient(ellipse 92% 86% at 50% 50%, #000000 50%, transparent 100%)',
             WebkitMaskImage:
-              'radial-gradient(ellipse 88% 82% at 50% 50%, #000000 42%, transparent 100%)',
+              'radial-gradient(ellipse 92% 86% at 50% 50%, #000000 50%, transparent 100%)',
           }}
         >
           <title>NEXUS Telemetry Vector Paths</title>
@@ -204,7 +204,7 @@ export default function FloatingPathsBackground({
         className={`pointer-events-none absolute inset-0 ${
           isLight
             ? 'bg-gradient-to-b from-white/70 via-transparent to-white/85'
-            : 'bg-[radial-gradient(ellipse_at_center,transparent_38%,rgba(7,9,12,0.78)_100%)]'
+            : 'bg-[radial-gradient(ellipse_at_center,transparent_44%,rgba(7,9,12,0.68)_100%)]'
         }`}
       />
 
