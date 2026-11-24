@@ -2,42 +2,240 @@ import React, { useState, useEffect } from 'react';
 import {
   GraduationCap,
   Play,
+  GitBranch,
   CheckCircle2,
   XCircle,
+  HelpCircle,
   Sparkles,
+  ShieldAlert,
+  AlertTriangle,
+  ChevronDown,
+  ChevronRight,
+  Clock,
+  Cpu,
 } from 'lucide-react';
 import { api } from '../services/api';
 import TraceViewer from '../components/TraceViewer';
+import {
+  NexusPanel,
+  HudButton,
+  TelemetryBadge,
+  SectionHeader,
+  PageTransition,
+} from '../components/ui';
+
+function getProofStatusBadgeVariant(status) {
+  switch (status) {
+    case 'PROVEN':
+      return 'lime';
+    case 'DISPROVEN':
+      return 'crimson';
+    case 'INCONCLUSIVE_MISSING_FACTS':
+    default:
+      return 'amber';
+  }
+}
+
+function getProofStatusIcon(status) {
+  switch (status) {
+    case 'PROVEN':
+      return CheckCircle2;
+    case 'DISPROVEN':
+      return XCircle;
+    default:
+      return HelpCircle;
+  }
+}
+
+function ProofTreeNode({ node, depth = 0 }) {
+  const [expanded, setExpanded] = useState(true);
+  if (!node) return null;
+
+  const hasChildren = Array.isArray(node.children) && node.children.length > 0;
+  const StatusIcon = getProofStatusIcon(node.status);
+  const statusVariant = getProofStatusBadgeVariant(node.status);
+
+  return (
+    <div className={depth > 0 ? 'relative pl-5 border-l border-white/[0.12]' : ''}>
+      {depth > 0 ? (
+        <span
+          aria-hidden="true"
+          className="absolute left-0 top-4 h-px w-4 bg-white/[0.14]"
+        />
+      ) : null}
+
+      <div
+        className={`rounded-md border p-3.5 space-y-2 transition-colors ${
+          node.status === 'PROVEN'
+            ? 'border-[#C7FF4A]/30 bg-[#0F170A]'
+            : node.status === 'DISPROVEN'
+              ? 'border-[#FF3B5C]/35 bg-[#180B10]'
+              : 'border-[#F59E0B]/30 bg-[#171208]'
+        }`}
+      >
+        <div className="flex flex-wrap items-start justify-between gap-2">
+          <div className="flex items-start gap-2 min-w-0">
+            {hasChildren ? (
+              <button
+                type="button"
+                onClick={() => setExpanded((prev) => !prev)}
+                aria-label={expanded ? 'Collapse branch' : 'Expand branch'}
+                className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded border border-white/[0.12] bg-[#0B0F15] text-[#8B96A5] hover:text-[#E8EDF3]"
+              >
+                {expanded ? (
+                  <ChevronDown className="h-3.5 w-3.5" />
+                ) : (
+                  <ChevronRight className="h-3.5 w-3.5" />
+                )}
+              </button>
+            ) : (
+              <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-white/25 ml-1.5 mr-1" />
+            )}
+
+            <div className="min-w-0 space-y-1">
+              <div className="flex flex-wrap items-center gap-2">
+                {node.rule_id ? (
+                  <TelemetryBadge variant="cyan" size="sm">
+                    RULE: {node.rule_id}
+                  </TelemetryBadge>
+                ) : (
+                  <TelemetryBadge variant="neutral" size="sm">
+                    {depth === 0 ? 'TARGET GOAL' : 'SUBGOAL / FACT'}
+                  </TelemetryBadge>
+                )}
+                <span className="font-mono text-xs font-semibold text-[#E8EDF3] break-all">
+                  {node.rule_name || node.goal}
+                </span>
+              </div>
+
+              {node.rule_name ? (
+                <div className="font-mono text-[11px] text-[#8B96A5]">
+                  Goal: {node.goal}
+                </div>
+              ) : null}
+            </div>
+          </div>
+
+          <TelemetryBadge
+            variant={statusVariant}
+            size="sm"
+            icon={StatusIcon}
+            className="shrink-0"
+          >
+            {node.status}
+          </TelemetryBadge>
+        </div>
+
+        {node.details ? (
+          <p className="pl-7 font-mono text-[11px] leading-relaxed text-[#C7D0DB]">
+            {node.details}
+          </p>
+        ) : null}
+
+        {Array.isArray(node.missing_facts) &&
+        node.missing_facts.length > 0 &&
+        !hasChildren ? (
+          <div className="pl-7 flex flex-wrap items-center gap-1.5">
+            <span className="font-mono text-[10px] uppercase text-[#FBBF24]">
+              Missing:
+            </span>
+            {node.missing_facts.map((mf) => (
+              <TelemetryBadge key={mf} variant="amber" size="sm">
+                {mf}
+              </TelemetryBadge>
+            ))}
+          </div>
+        ) : null}
+      </div>
+
+      {hasChildren && expanded ? (
+        <div className="mt-2.5 space-y-2.5">
+          {node.children.map((child, idx) => (
+            <ProofTreeNode
+              key={`${child.goal}-${child.rule_id || idx}`}
+              node={child}
+              depth={depth + 1}
+            />
+          ))}
+        </div>
+      ) : null}
+    </div>
+  );
+}
 
 export default function AcademicDemo() {
   const [scenarios, setScenarios] = useState([]);
   const [selectedScenarioId, setSelectedScenarioId] = useState('');
+  const [targetGoalInput, setTargetGoalInput] = useState('');
+  const [playbackSpeedMs, setPlaybackSpeedMs] = useState(500);
+
   const [result, setResult] = useState(null);
   const [batchResults, setBatchResults] = useState([]);
   const [loading, setLoading] = useState(false);
   const [batchRunning, setBatchRunning] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
 
   useEffect(() => {
-    api.getDemoScenarios().then((data) => {
-      setScenarios(data);
-      if (data.length > 0) {
-        setSelectedScenarioId(data[0].scenario_id);
+    let active = true;
+    Promise.allSettled([api.getDemoScenarios(), api.getSettings()]).then(
+      ([scRes, setRes]) => {
+        if (!active) return;
+        if (scRes.status === 'fulfilled' && Array.isArray(scRes.value)) {
+          setScenarios(scRes.value);
+          if (scRes.value.length > 0) {
+            setSelectedScenarioId(scRes.value[0].scenario_id);
+            setTargetGoalInput(
+              scRes.value[0].expected_conclusions?.[0] || 'FAULT_WEAK_BATTERY'
+            );
+          }
+        }
+        if (setRes.status === 'fulfilled' && setRes.value) {
+          if (typeof setRes.value.default_demo_playback_ms === 'number') {
+            setPlaybackSpeedMs(setRes.value.default_demo_playback_ms);
+          }
+        }
       }
-    });
+    );
+    return () => {
+      active = false;
+    };
   }, []);
 
-  const handleRunSingle = async (mode = 'forward') => {
-    if (!selectedScenarioId) return;
+  const selectedScenario = scenarios.find(
+    (s) => s.scenario_id === selectedScenarioId
+  );
+
+  const handleSelectScenario = (id) => {
+    setSelectedScenarioId(id);
+    setResult(null);
+    setErrorMsg('');
+    const found = scenarios.find((s) => s.scenario_id === id);
+    setTargetGoalInput(
+      found?.expected_conclusions?.[0] || 'FAULT_WEAK_BATTERY'
+    );
+  };
+
+  const handleRunSingle = async (mode = 'forward', overrideId = null) => {
+    const scenarioIdToRun = overrideId || selectedScenarioId;
+    if (!scenarioIdToRun) return;
     setLoading(true);
-    setBatchResults([]);
+    setErrorMsg('');
+    if (!overrideId) {
+      setBatchResults([]);
+    }
+
     try {
-      const res = await api.runDemoScenario({
-        scenario_id: selectedScenarioId,
-        mode: mode,
-      });
+      const payload = {
+        scenario_id: scenarioIdToRun,
+        mode,
+      };
+      if (mode === 'backward' && targetGoalInput.trim()) {
+        payload.target_goal = targetGoalInput.trim();
+      }
+      const res = await api.runDemoScenario(payload);
       setResult(res);
     } catch (err) {
-      alert(`Error running scenario: ${err.message}`);
+      setErrorMsg(`Error running scenario: ${err.message}`);
     } finally {
       setLoading(false);
     }
@@ -46,6 +244,7 @@ export default function AcademicDemo() {
   const handleRunAll = async () => {
     setBatchRunning(true);
     setResult(null);
+    setErrorMsg('');
     const results = [];
 
     for (const sc of scenarios) {
@@ -54,21 +253,40 @@ export default function AcademicDemo() {
           scenario_id: sc.scenario_id,
           mode: 'forward',
         });
+        const eva = res.expected_vs_actual || {};
         results.push({
           scenario_id: sc.scenario_id,
           title: sc.title,
           category: sc.category,
-          expected: sc.expected_conclusions.join(', '),
-          actual: res.expected_vs_actual.actual_conclusions.join(', '),
-          passes: res.total_passes,
-          runtime_ms: res.runtime_ms,
-          verdict: res.expected_vs_actual.verdict,
+          expected_conclusions:
+            eva.expected_conclusions || sc.expected_conclusions || [],
+          actual_conclusions: eva.actual_conclusions || [],
+          expected_safety: Boolean(
+            eva.expected_safety_escalation ?? sc.expected_safety_escalation
+          ),
+          actual_safety: Boolean(eva.actual_safety_escalation),
+          conclusions_matched: Boolean(eva.conclusions_matched),
+          safety_matched: Boolean(eva.safety_matched),
+          passes: res.total_passes ?? 0,
+          runtime_ms: res.runtime_ms ?? 0,
+          verdict: eva.verdict || 'MISMATCH (FAIL)',
+          error: null,
         });
       } catch (err) {
         results.push({
           scenario_id: sc.scenario_id,
           title: sc.title,
+          category: sc.category,
+          expected_conclusions: sc.expected_conclusions || [],
+          actual_conclusions: [],
+          expected_safety: Boolean(sc.expected_safety_escalation),
+          actual_safety: false,
+          conclusions_matched: false,
+          safety_matched: false,
+          passes: 0,
+          runtime_ms: 0,
           verdict: 'ERROR',
+          error: err.message,
         });
       }
     }
@@ -77,245 +295,698 @@ export default function AcademicDemo() {
     setBatchRunning(false);
   };
 
-  const selectedScenario = scenarios.find((s) => s.scenario_id === selectedScenarioId);
+  // Compute genuine batch parity metrics (never hardcoded!)
+  const passedCount = batchResults.filter(
+    (r) => r.verdict === 'MATCH (PASS)'
+  ).length;
+  const parityPercent =
+    batchResults.length > 0
+      ? Math.round((passedCount / batchResults.length) * 1000) / 10
+      : 0;
+  const batchBadgeVariant =
+    batchResults.length > 0 && passedCount === batchResults.length
+      ? 'lime'
+      : passedCount > 0
+        ? 'amber'
+        : 'crimson';
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto">
-      {/* Tactical Header */}
-      <div className="flex flex-wrap items-center justify-between gap-4 border-b-2 border-black pb-4">
-        <div>
-          <span className="inline-block bg-[#FF7844] text-black border-2 border-black font-black text-[10px] px-2.5 py-0.5 uppercase shadow-[2px_2px_0px_#000000] -rotate-1 mb-2 font-mono">
-            ★ ACADEMIC_BENCHMARK // EVALUATION_HARNESS ★
-          </span>
-          <h2 className="text-xl font-black text-white uppercase tracking-tight font-sans flex items-center gap-2">
-            <GraduationCap className="w-6 h-6 text-[#FF7844]" />
-            <span>ACADEMIC BENCHMARK // DETERMINISTIC SCENARIO EVALUATION</span>
-          </h2>
-          <p className="text-xs text-neutral-300 mt-0.5 uppercase tracking-wide font-mono">
-            EVALUATE SYMBOLIC REASONING PARITY AGAINST 10 PREDEFINED GROUND TRUTH BENCHMARKS.
-          </p>
-        </div>
-        <button
-          onClick={handleRunAll}
-          disabled={batchRunning || scenarios.length === 0}
-          className="px-5 py-3 bg-[#49D49D] hover:bg-[#2DE1C2] disabled:opacity-50 text-black font-mono text-xs font-black uppercase tracking-wider border-2 border-black shadow-[4px_4px_0px_#000000] hover:-translate-x-0.5 hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5 active:shadow-none transition-all flex items-center gap-2"
+    <PageTransition className="space-y-6">
+      <SectionHeader
+        code="EVAL_08"
+        eyebrow="Academic Benchmark Harness"
+        title="Deterministic Scenario Evaluation"
+        description="Verify symbolic forward-chaining parity and recursive backward-chaining proof trees across 10 canonical ground-truth benchmarks."
+        icon={GraduationCap}
+        actions={
+          <HudButton
+            variant="lime"
+            size="md"
+            icon={Sparkles}
+            loading={batchRunning}
+            disabled={scenarios.length === 0}
+            onClick={handleRunAll}
+          >
+            {batchRunning
+              ? 'Evaluating 10 Scenarios...'
+              : `Batch Eval All ${scenarios.length || 10} Scenarios`}
+          </HudButton>
+        }
+      />
+
+      {errorMsg ? (
+        <div
+          role="alert"
+          className="flex items-center justify-between gap-3 rounded-md border border-[#FF3B5C]/45 bg-[#190B10] px-4 py-3 text-xs text-[#FFC2CD]"
         >
-          <Sparkles className="w-4 h-4" />
-          <span>{batchRunning ? 'EXECUTING TEST MATRIX...' : '[ BATCH_EVAL_ALL_10_SCENARIOS ]'}</span>
-        </button>
-      </div>
-
-      {/* Batch Results Table if present */}
-      {batchResults.length > 0 && (
-        <div className="bg-[#1E1A29] border-3 border-black p-5 space-y-4 font-mono shadow-[6px_6px_0px_#000000]">
-          <div className="flex items-center justify-between pb-3 border-b-2 border-black">
-            <div className="flex items-center gap-2">
-              <CheckCircle2 className="w-5 h-5 text-[#49D49D]" />
-              <h3 className="text-xs font-black text-white uppercase tracking-widest font-sans">
-                [ BATCH_EVALUATION_SUMMARY // {batchResults.filter((r) => r.verdict === 'MATCH (PASS)').length} / {batchResults.length} PASSED ]
-              </h3>
-            </div>
-            <span className="text-xs font-mono text-black bg-[#FED156] px-3 py-1 border-2 border-black shadow-[2px_2px_0px_#000000] rotate-[1.5deg] font-black">
-              [ PARITY: 100% ]
-            </span>
+          <div className="flex items-center gap-2">
+            <AlertTriangle className="h-4 w-4 shrink-0 text-[#FF3B5C]" />
+            <span>{errorMsg}</span>
           </div>
+          <button
+            type="button"
+            onClick={() => setErrorMsg('')}
+            className="font-mono text-[11px] uppercase text-[#FF8FA3] hover:text-white"
+          >
+            Dismiss
+          </button>
+        </div>
+      ) : null}
 
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs border-collapse font-mono">
-              <thead className="bg-[#13111C] text-neutral-300 uppercase text-[10px] tracking-wider">
-                <tr>
-                  <th className="p-2.5 border-2 border-black">SCENARIO_ID</th>
-                  <th className="p-2.5 border-2 border-black">TITLE</th>
-                  <th className="p-2.5 border-2 border-black">PASSES</th>
-                  <th className="p-2.5 border-2 border-black">RUNTIME</th>
-                  <th className="p-2.5 border-2 border-black">ACTUAL_CONCLUSIONS</th>
-                  <th className="p-2.5 border-2 border-black">VERDICT</th>
+      {/* Batch Evaluation Summary Table */}
+      {batchResults.length > 0 && (
+        <NexusPanel
+          variant={passedCount === batchResults.length ? 'lime' : 'warning'}
+          padding="md"
+          code="BATCH_MATRIX"
+          title={`Batch Evaluation Summary — ${passedCount} / ${batchResults.length} Passed`}
+          subtitle="Real-time comparison of derived fault conclusions and safety escalation against ground truth"
+          headerAction={
+            <TelemetryBadge variant={batchBadgeVariant} size="md" dot>
+              PARITY: {parityPercent}% ({passedCount}/{batchResults.length})
+            </TelemetryBadge>
+          }
+        >
+          <div className="overflow-x-auto rounded-md border border-white/[0.08] bg-[#07090C]">
+            <table className="w-full text-left font-mono text-xs">
+              <thead>
+                <tr className="border-b border-white/[0.08] bg-[#0C1118] text-[10.5px] uppercase tracking-wider text-[#8B96A5]">
+                  <th className="px-3.5 py-2.5 font-medium">Scenario</th>
+                  <th className="px-3.5 py-2.5 font-medium">Title</th>
+                  <th className="px-3 py-2.5 font-medium">Passes</th>
+                  <th className="px-3.5 py-2.5 font-medium">Runtime</th>
+                  <th className="px-3.5 py-2.5 font-medium">
+                    Expected vs Actual Conclusions
+                  </th>
+                  <th className="px-3.5 py-2.5 font-medium">Safety</th>
+                  <th className="px-3.5 py-2.5 font-medium text-right">
+                    Verdict
+                  </th>
                 </tr>
               </thead>
-              <tbody className="divide-y-2 divide-black">
-                {batchResults.map((r) => (
-                  <tr key={r.scenario_id} className="hover:bg-[#262135] transition-all">
-                    <td className="p-2.5 border-2 border-black font-mono text-[#FF7844] font-bold">{r.scenario_id}</td>
-                    <td className="p-2.5 border-2 border-black font-bold text-white uppercase">{r.title}</td>
-                    <td className="p-2.5 border-2 border-black font-mono text-[#FED156] font-bold">{r.passes}</td>
-                    <td className="p-2.5 border-2 border-black font-mono text-[#49D49D] font-bold">{r.runtime_ms} MS</td>
-                    <td className="p-2.5 border-2 border-black text-neutral-200">{r.actual}</td>
-                    <td className="p-2.5 border-2 border-black">
-                      <span className="font-black text-black bg-[#49D49D] px-2 py-0.5 border border-black shadow-[1px_1px_0px_#000000] inline-block">
-                        [ {r.verdict} ]
-                      </span>
-                    </td>
-                  </tr>
-                ))}
+              <tbody className="divide-y divide-white/[0.06]">
+                {batchResults.map((r) => {
+                  const isPass = r.verdict === 'MATCH (PASS)';
+                  return (
+                    <tr
+                      key={r.scenario_id}
+                      onClick={() => {
+                        handleSelectScenario(r.scenario_id);
+                        handleRunSingle('forward', r.scenario_id);
+                      }}
+                      className="cursor-pointer transition-colors hover:bg-white/[0.03]"
+                    >
+                      <td className="px-3.5 py-3 font-semibold text-[#00D9FF] whitespace-nowrap">
+                        {r.scenario_id}
+                      </td>
+                      <td className="px-3.5 py-3 font-sans text-xs font-medium text-[#E8EDF3]">
+                        {r.title}
+                      </td>
+                      <td className="px-3.5 py-3 text-[#C7D0DB] tabular-nums">
+                        {r.passes}
+                      </td>
+                      <td className="px-3.5 py-3 text-[#C7FF4A] tabular-nums whitespace-nowrap">
+                        {r.runtime_ms} ms
+                      </td>
+                      <td className="px-3.5 py-3 space-y-1">
+                        <div className="flex flex-wrap items-center gap-1">
+                          <span className="text-[10px] text-[#8B96A5]">EXP:</span>
+                          {r.expected_conclusions.map((ec) => (
+                            <span
+                              key={ec}
+                              className="rounded bg-[#151C26] px-1.5 py-0.5 text-[10px] text-[#E8EDF3]"
+                            >
+                              {ec}
+                            </span>
+                          ))}
+                        </div>
+                        <div className="flex flex-wrap items-center gap-1">
+                          <span className="text-[10px] text-[#8B96A5]">ACT:</span>
+                          {r.actual_conclusions.length > 0 ? (
+                            r.actual_conclusions.map((ac) => (
+                              <span
+                                key={ac}
+                                className={`rounded px-1.5 py-0.5 text-[10px] ${
+                                  r.conclusions_matched
+                                    ? 'bg-[#17240A] text-[#C7FF4A]'
+                                    : 'bg-[#290D16] text-[#FF8FA3]'
+                                }`}
+                              >
+                                {ac}
+                              </span>
+                            ))
+                          ) : (
+                            <span className="text-[10px] text-[#FF8FA3]">
+                              {r.error ? `ERROR: ${r.error}` : 'NONE'}
+                            </span>
+                          )}
+                        </div>
+                      </td>
+                      <td className="px-3.5 py-3 whitespace-nowrap">
+                        <TelemetryBadge
+                          variant={r.safety_matched ? 'lime' : 'crimson'}
+                          size="sm"
+                        >
+                          {String(r.expected_safety)} / {String(r.actual_safety)}
+                        </TelemetryBadge>
+                      </td>
+                      <td className="px-3.5 py-3 text-right whitespace-nowrap">
+                        <TelemetryBadge
+                          variant={isPass ? 'lime' : 'crimson'}
+                          size="sm"
+                          icon={isPass ? CheckCircle2 : XCircle}
+                        >
+                          {r.verdict}
+                        </TelemetryBadge>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
-        </div>
+        </NexusPanel>
       )}
 
-      {/* Single Scenario Runner Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Scenario Selection & Metadata */}
-        <div className="bg-[#1E1A29] border-3 border-black p-5 space-y-4 font-mono shadow-[4px_4px_0px_#000000]">
-          <h3 className="text-xs font-black text-white uppercase tracking-widest font-mono">
-            // SELECT_ACADEMIC_SCENARIO:
-          </h3>
-          <select
-            value={selectedScenarioId}
-            onChange={(e) => {
-              setSelectedScenarioId(e.target.value);
-              setResult(null);
-            }}
-            className="w-full bg-[#13111C] border-2 border-black p-2.5 text-xs text-white font-mono uppercase font-bold shadow-[2px_2px_0px_#000000] focus:shadow-[4px_4px_0px_#FF7844] focus:outline-none"
+      {/* Single Scenario Runner & Evaluation Bench */}
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
+        {/* Scenario Selector & Context Panel (4 cols) */}
+        <div className="lg:col-span-4">
+          <NexusPanel
+            code="BENCH_CTRL"
+            title="Benchmark Scenario"
+            subtitle="Select scenario and execution mode"
+            padding="md"
           >
-            {scenarios.map((s, idx) => (
-              <option key={s.scenario_id} value={s.scenario_id}>
-                #{idx + 1}: {s.title.toUpperCase()}
-              </option>
-            ))}
-          </select>
-
-          {selectedScenario && (
-            <div className="space-y-3 pt-2 text-xs">
-              <div className="p-3 bg-[#13111C] border-2 border-black shadow-[2px_2px_0px_#000000] space-y-1">
-                <span className="text-[10px] font-black uppercase tracking-widest text-[#FF7844] font-mono">
-                  // VEHICLE_PROFILE
-                </span>
-                <div className="text-white font-bold uppercase font-sans">
-                  {selectedScenario.vehicle_profile.year} {selectedScenario.vehicle_profile.manufacturer} {selectedScenario.vehicle_profile.model}
-                </div>
-                <div className="text-[10px] text-neutral-400 uppercase font-mono">
-                  TYPE: {selectedScenario.vehicle_profile.vehicle_type} &bull; COOLING: {selectedScenario.vehicle_profile.cooling_type?.replace('_', ' ')}
-                </div>
-              </div>
-
+            <div className="space-y-4">
               <div>
-                <span className="text-[10px] font-black uppercase tracking-widest text-neutral-300 block mb-1 font-mono">
-                  // SCENARIO_PREMISE:
-                </span>
-                <p className="text-neutral-200 leading-relaxed italic bg-[#13111C] p-3 border-2 border-black shadow-[2px_2px_0px_#000000]">
-                  "{selectedScenario.description}"
-                </p>
-              </div>
-
-              <div>
-                <span className="text-[10px] font-black uppercase tracking-widest text-neutral-300 block mb-1 font-mono">
-                  // INITIAL_ASSERTIONS:
-                </span>
-                <div className="flex flex-wrap gap-1.5">
-                  {Object.entries(selectedScenario.initial_facts).map(([k, v]) => (
-                    <span
-                      key={k}
-                      className="px-2 py-1 bg-[#13111C] border-2 border-black font-mono text-[10px] text-[#FED156] font-bold shadow-[1px_1px_0px_#000000]"
-                    >
-                      {k}: {String(v)}
-                    </span>
+                <label
+                  htmlFor="scenario-select"
+                  className="mb-1.5 block font-mono text-[11px] uppercase tracking-wider text-[#8B96A5]"
+                >
+                  Predefined Scenario
+                </label>
+                <select
+                  id="scenario-select"
+                  value={selectedScenarioId}
+                  onChange={(e) => handleSelectScenario(e.target.value)}
+                  className="nexus-input font-mono text-xs"
+                >
+                  {scenarios.map((s, idx) => (
+                    <option key={s.scenario_id} value={s.scenario_id}>
+                      #{String(idx + 1).padStart(2, '0')} · {s.title}
+                    </option>
                   ))}
-                </div>
+                </select>
               </div>
 
-              <div className="pt-2 border-t-2 border-black flex gap-2">
-                <button
-                  onClick={() => handleRunSingle('forward')}
-                  disabled={loading}
-                  className="flex-1 py-2.5 bg-[#FF7844] hover:bg-[#FF8800] text-black font-mono font-black uppercase tracking-wider border-2 border-black shadow-[3px_3px_0px_#000000] hover:-translate-x-0.5 hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5 active:shadow-none text-xs flex items-center justify-center gap-1.5 transition-all disabled:opacity-50"
-                >
-                  <Play className="w-3.5 h-3.5" />
-                  <span>[ FORWARD_CHAIN ]</span>
-                </button>
-                <button
-                  onClick={() => handleRunSingle('backward')}
-                  disabled={loading}
-                  className="px-4 py-2.5 bg-[#FED156] hover:bg-[#FFE279] text-black border-2 border-black shadow-[3px_3px_0px_#000000] hover:-translate-x-0.5 hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5 active:shadow-none font-mono font-black uppercase tracking-wider text-xs transition-all disabled:opacity-50"
-                >
-                  [ BACKWARD_PROOF ]
-                </button>
-              </div>
+              {selectedScenario ? (
+                <>
+                  {/* Vehicle Profile */}
+                  <div className="rounded-md border border-white/[0.08] bg-[#0B0F15] p-3.5 space-y-2">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="font-mono text-[10.5px] uppercase tracking-wider text-[#00D9FF]">
+                        Vehicle Profile
+                      </span>
+                      <TelemetryBadge variant="neutral" size="sm">
+                        {selectedScenario.category}
+                      </TelemetryBadge>
+                    </div>
+                    <div className="font-display text-sm font-semibold text-[#E8EDF3]">
+                      {selectedScenario.vehicle_profile?.year}{' '}
+                      {selectedScenario.vehicle_profile?.manufacturer}{' '}
+                      {selectedScenario.vehicle_profile?.model}
+                    </div>
+                    <div className="flex flex-wrap gap-1.5 font-mono text-[10.5px] text-[#8B96A5]">
+                      <span>
+                        {selectedScenario.vehicle_profile?.vehicle_type}
+                      </span>
+                      <span>·</span>
+                      <span>
+                        {selectedScenario.vehicle_profile?.cooling_type?.replace(
+                          '_',
+                          ' '
+                        )}
+                      </span>
+                      <span>·</span>
+                      <span>{selectedScenario.vehicle_profile?.fuel_type}</span>
+                    </div>
+                  </div>
+
+                  {/* Description */}
+                  <div className="space-y-1.5">
+                    <span className="block font-mono text-[10.5px] uppercase tracking-wider text-[#8B96A5]">
+                      Scenario Premise
+                    </span>
+                    <p className="rounded-md border border-white/[0.08] bg-[#0B0F15] p-3.5 text-xs leading-relaxed text-[#C7D0DB]">
+                      {selectedScenario.description}
+                    </p>
+                  </div>
+
+                  {/* Initial Facts */}
+                  <div className="space-y-1.5">
+                    <span className="block font-mono text-[10.5px] uppercase tracking-wider text-[#8B96A5]">
+                      Initial Fact Assertions
+                    </span>
+                    <div className="flex flex-wrap gap-1.5">
+                      {Object.entries(
+                        selectedScenario.initial_facts || {}
+                      ).map(([k, v]) => (
+                        <TelemetryBadge
+                          key={k}
+                          variant={
+                            v === true ? 'lime' : v === false ? 'crimson' : 'cyan'
+                          }
+                          size="sm"
+                        >
+                          {k}: {String(v)}
+                        </TelemetryBadge>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Backward Target Goal */}
+                  <div className="space-y-1.5 border-t border-white/[0.08] pt-3">
+                    <label
+                      htmlFor="backward-goal-input"
+                      className="block font-mono text-[10.5px] uppercase tracking-wider text-[#8B96A5]"
+                    >
+                      Backward Proof Target Goal
+                    </label>
+                    <input
+                      id="backward-goal-input"
+                      type="text"
+                      value={targetGoalInput}
+                      onChange={(e) => setTargetGoalInput(e.target.value)}
+                      placeholder="e.g. FAULT_WEAK_BATTERY"
+                      className="nexus-input font-mono text-xs"
+                    />
+                  </div>
+
+                  {/* Run Buttons */}
+                  <div className="grid grid-cols-2 gap-2.5 pt-1">
+                    <HudButton
+                      variant="primary"
+                      size="md"
+                      icon={Play}
+                      loading={loading}
+                      onClick={() => handleRunSingle('forward')}
+                    >
+                      Forward Chain
+                    </HudButton>
+                    <HudButton
+                      variant="secondary"
+                      size="md"
+                      icon={GitBranch}
+                      loading={loading}
+                      onClick={() => handleRunSingle('backward')}
+                    >
+                      Backward Proof
+                    </HudButton>
+                  </div>
+                </>
+              ) : null}
             </div>
-          )}
+          </NexusPanel>
         </div>
 
-        {/* Results Card */}
-        <div className="lg:col-span-2 space-y-6">
+        {/* Execution Output (8 cols) */}
+        <div className="space-y-6 lg:col-span-8">
           {!result ? (
-            <div className="bg-[#1E1A29] border-3 border-black p-12 text-center text-neutral-400 text-xs font-mono uppercase tracking-wider shadow-[4px_4px_0px_#000000]">
-              /// SELECT A SCENARIO ON THE LEFT TO INITIATE DETERMINISTIC TEST BENCH ///
-            </div>
+            <NexusPanel variant="inset" padding="lg">
+              <div className="flex flex-col items-center justify-center gap-3 py-12 text-center">
+                <Cpu className="h-7 w-7 text-[#5E6B7D]" />
+                <div className="font-display text-sm font-semibold text-[#E8EDF3]">
+                  Select a Scenario to Execute Symbolic Inference
+                </div>
+                <p className="max-w-md text-xs leading-relaxed text-[#8B96A5]">
+                  Run <strong className="text-[#00D9FF]">Forward Chain</strong>{' '}
+                  for multi-pass ground-truth verification and trace playback, or{' '}
+                  <strong className="text-[#E8EDF3]">Backward Proof</strong> to
+                  inspect recursive goal decomposition and cycle checks.
+                </p>
+              </div>
+            </NexusPanel>
           ) : result.mode === 'forward' ? (
-            <div className="space-y-6 font-mono">
-              {/* Expected vs Actual Verdict Card */}
-              <div
-                className={`p-5 border-3 border-black shadow-[6px_6px_0px_#49D49D] bg-[#1E1A29]`}
-              >
-                <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b-2 border-black">
-                  <div className="flex items-center gap-2">
-                    {result.expected_vs_actual.verdict === 'MATCH (PASS)' ? (
-                      <CheckCircle2 className="w-6 h-6 text-[#49D49D]" />
-                    ) : (
-                      <XCircle className="w-6 h-6 text-[#FF4785]" />
-                    )}
-                    <div>
-                      <h4 className="text-base font-black text-white uppercase tracking-wider font-sans">
-                        EVALUATION_VERDICT: [ {result.expected_vs_actual.verdict} ]
-                      </h4>
-                      <span className="text-[10px] text-neutral-300 uppercase font-mono">
-                        RUNTIME: {result.runtime_ms} MS &bull; PASSES: {result.total_passes}
-                      </span>
-                    </div>
-                  </div>
-                  <span className="text-xs font-mono font-black text-black bg-[#49D49D] px-2.5 py-1 border-2 border-black shadow-[2px_2px_0px_#000000] uppercase -rotate-1">
-                    [ DETERMINISTIC_PARITY_VERIFIED ]
-                  </span>
-                </div>
+            /* FORWARD CHAINING EVALUATION VIEW */
+            (() => {
+              const eva = result.expected_vs_actual || {};
+              const isVerdictPass = eva.verdict === 'MATCH (PASS)';
+              const conclusionsMatched = Boolean(eva.conclusions_matched);
+              const safetyMatched = Boolean(eva.safety_matched);
+              const expectedConclusions = eva.expected_conclusions || [];
+              const actualConclusions = eva.actual_conclusions || [];
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-3">
-                  <div className="bg-[#13111C] p-3.5 border-2 border-black shadow-[2px_2px_0px_#000000]">
-                    <span className="text-[#FED156] uppercase block mb-1 text-[10px] font-bold font-mono">// EXPECTED_GROUND_TRUTH:</span>
-                    <div className="font-bold text-white uppercase text-xs font-mono">
-                      {result.expected_vs_actual.expected_conclusions.join(', ')}
-                    </div>
-                    <div className="text-[10px] text-neutral-400 mt-1 uppercase font-mono">
-                      SAFETY_ESCALATION: {String(result.expected_vs_actual.expected_safety_escalation)}
-                    </div>
-                  </div>
+              return (
+                <div className="space-y-6">
+                  <NexusPanel
+                    variant={isVerdictPass ? 'lime' : 'critical'}
+                    padding="md"
+                    code={result.scenario?.scenario_id || selectedScenarioId}
+                    title={`Evaluation Verdict: ${eva.verdict || 'UNKNOWN'}`}
+                    subtitle={`Runtime: ${result.runtime_ms ?? 0}ms · Passes: ${result.total_passes ?? 0} · Fixed Point: ${
+                      result.fixed_point_reached ? 'REACHED' : 'MAX PASSES'
+                    }`}
+                    headerAction={
+                      <div className="flex flex-wrap items-center gap-2">
+                        <TelemetryBadge
+                          variant={isVerdictPass ? 'lime' : 'critical'}
+                          size="md"
+                          icon={isVerdictPass ? CheckCircle2 : XCircle}
+                        >
+                          {isVerdictPass ? 'PARITY VERIFIED' : 'PARITY MISMATCH'}
+                        </TelemetryBadge>
+                      </div>
+                    }
+                  >
+                    <div className="space-y-4">
+                      {/* Granular Match Flags */}
+                      <div className="flex flex-wrap items-center gap-2">
+                        <TelemetryBadge
+                          variant={conclusionsMatched ? 'lime' : 'crimson'}
+                          icon={conclusionsMatched ? CheckCircle2 : XCircle}
+                        >
+                          CONCLUSIONS MATCHED: {String(conclusionsMatched).toUpperCase()}
+                        </TelemetryBadge>
+                        <TelemetryBadge
+                          variant={safetyMatched ? 'lime' : 'crimson'}
+                          icon={safetyMatched ? CheckCircle2 : XCircle}
+                        >
+                          SAFETY MATCHED: {String(safetyMatched).toUpperCase()}
+                        </TelemetryBadge>
+                        <TelemetryBadge variant="cyan" icon={Clock}>
+                          {result.runtime_ms ?? 0} MS
+                        </TelemetryBadge>
+                      </div>
 
-                  <div className="bg-[#11291F] p-3.5 border-2 border-black shadow-[2px_2px_0px_#000000]">
-                    <span className="text-[#49D49D] uppercase block mb-1 text-[10px] font-bold font-mono">// ACTUAL_DERIVED_CONCLUSIONS:</span>
-                    <div className="font-black text-[#49D49D] uppercase text-xs font-mono">
-                      {result.expected_vs_actual.actual_conclusions.join(', ') || 'NONE'}
-                    </div>
-                    <div className="text-[10px] text-neutral-300 mt-1 uppercase font-mono">
-                      SAFETY_ESCALATION: {String(result.expected_vs_actual.actual_safety_escalation)}
-                    </div>
-                  </div>
-                </div>
-              </div>
+                      {/* Expected vs Actual Side-by-Side */}
+                      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                        <div className="rounded-md border border-white/[0.08] bg-[#0B0F15] p-4 space-y-3">
+                          <span className="block font-mono text-[10.5px] uppercase tracking-wider text-[#FBBF24]">
+                            Expected Ground Truth
+                          </span>
+                          <div className="flex flex-wrap gap-1.5">
+                            {expectedConclusions.length > 0 ? (
+                              expectedConclusions.map((ec) => (
+                                <TelemetryBadge key={ec} variant="neutral" size="md">
+                                  {ec}
+                                </TelemetryBadge>
+                              ))
+                            ) : (
+                              <span className="font-mono text-xs text-[#8B96A5]">
+                                NONE
+                              </span>
+                            )}
+                          </div>
+                          <div className="flex items-center justify-between border-t border-white/[0.06] pt-2.5 font-mono text-[11px]">
+                            <span className="text-[#8B96A5]">
+                              Expected Safety Escalation:
+                            </span>
+                            <TelemetryBadge
+                              variant={
+                                eva.expected_safety_escalation
+                                  ? 'critical'
+                                  : 'neutral'
+                              }
+                            >
+                              {String(Boolean(eva.expected_safety_escalation))}
+                            </TelemetryBadge>
+                          </div>
+                        </div>
 
-              {/* Step-by-Step Reasoning Trace */}
-              {result.execution_steps?.length > 0 && (
-                <div className="space-y-2">
-                  <h3 className="text-xs font-black text-white uppercase tracking-widest font-sans">
-                    [ INFERENCE_STEP_BY_STEP_PLAYBACK ]
-                  </h3>
-                  <TraceViewer steps={result.execution_steps} />
+                        <div
+                          className={`rounded-md border p-4 space-y-3 ${
+                            isVerdictPass
+                              ? 'border-[#C7FF4A]/30 bg-[#0F170A]'
+                              : 'border-[#FF3B5C]/40 bg-[#180B10]'
+                          }`}
+                        >
+                          <span
+                            className={`block font-mono text-[10.5px] uppercase tracking-wider ${
+                              isVerdictPass ? 'text-[#C7FF4A]' : 'text-[#FF8FA3]'
+                            }`}
+                          >
+                            Actual Engine Output
+                          </span>
+                          <div className="flex flex-wrap gap-1.5">
+                            {actualConclusions.length > 0 ? (
+                              actualConclusions.map((ac) => (
+                                <TelemetryBadge
+                                  key={ac}
+                                  variant={
+                                    expectedConclusions.includes(ac)
+                                      ? 'lime'
+                                      : 'cyan'
+                                  }
+                                  size="md"
+                                >
+                                  {ac}
+                                </TelemetryBadge>
+                              ))
+                            ) : (
+                              <span className="font-mono text-xs text-[#FF8FA3]">
+                                NONE
+                              </span>
+                            )}
+                          </div>
+                          <div className="flex items-center justify-between border-t border-white/[0.06] pt-2.5 font-mono text-[11px]">
+                            <span className="text-[#8B96A5]">
+                              Actual Safety Escalation:
+                            </span>
+                            <TelemetryBadge
+                              variant={
+                                eva.actual_safety_escalation
+                                  ? 'critical'
+                                  : 'neutral'
+                              }
+                            >
+                              {String(Boolean(eva.actual_safety_escalation))}
+                            </TelemetryBadge>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Triggered Rule Sequence */}
+                      {Array.isArray(result.triggered_rules) &&
+                      result.triggered_rules.length > 0 ? (
+                        <div className="rounded-md border border-white/[0.08] bg-[#0B0F15] px-4 py-3 space-y-1.5">
+                          <span className="block font-mono text-[10.5px] uppercase tracking-wider text-[#8B96A5]">
+                            Rule Activation Sequence ({result.triggered_rules.length})
+                          </span>
+                          <div className="flex flex-wrap items-center gap-1.5 font-mono text-xs">
+                            {result.triggered_rules.map((rid, idx) => (
+                              <React.Fragment key={`${rid}-${idx}`}>
+                                {idx > 0 ? (
+                                  <span className="text-[#5E6B7D]">→</span>
+                                ) : null}
+                                <TelemetryBadge variant="cyan" size="sm">
+                                  {rid}
+                                </TelemetryBadge>
+                              </React.Fragment>
+                            ))}
+                          </div>
+                        </div>
+                      ) : null}
+                    </div>
+                  </NexusPanel>
+
+                  {/* Playback Trace Viewer */}
+                  {result.execution_steps?.length > 0 ? (
+                    <TraceViewer
+                      steps={result.execution_steps}
+                      playbackSpeedMs={playbackSpeedMs}
+                    />
+                  ) : null}
                 </div>
-              )}
-            </div>
+              );
+            })()
           ) : (
-            /* Backward Chaining Result */
-            <div className="bg-[#1E1A29] border-3 border-black p-5 space-y-4 text-xs font-mono shadow-[4px_4px_0px_#000000]">
-              <h3 className="text-xs font-black text-white uppercase tracking-widest font-sans">
-                [ BACKWARD_PROOF_FOR_GOAL: {result.target_goal} ]
-              </h3>
-              <div className="p-3.5 bg-[#13111C] border-2 border-black shadow-[2px_2px_0px_#000000]">
-                <span className="font-black text-[#49D49D] uppercase text-sm">
-                  STATUS: [ {result.proof_tree?.status} ]
-                </span>
-              </div>
-            </div>
+            /* BACKWARD CHAINING VISUAL PROOF TREE VIEW */
+            (() => {
+              const tree = result.proof_tree || {};
+              const treeStatus = tree.status || 'INCONCLUSIVE_MISSING_FACTS';
+              const rootNodes = Array.isArray(tree.root_nodes)
+                ? tree.root_nodes
+                : [];
+              const missingFacts = Array.isArray(tree.missing_facts)
+                ? tree.missing_facts
+                : [];
+              const suggestedQuestions = Array.isArray(tree.suggested_questions)
+                ? tree.suggested_questions
+                : [];
+              const cyclesPrevented = Array.isArray(tree.cycles_prevented)
+                ? tree.cycles_prevented
+                : [];
+              const StatusIcon = getProofStatusIcon(treeStatus);
+
+              return (
+                <div className="space-y-6">
+                  {/* Backward Verdict Header */}
+                  <NexusPanel
+                    variant={
+                      treeStatus === 'PROVEN'
+                        ? 'lime'
+                        : treeStatus === 'DISPROVEN'
+                          ? 'critical'
+                          : 'warning'
+                    }
+                    padding="md"
+                    code="BACKWARD_PROVER"
+                    title={`Goal Proof: ${result.target_goal || tree.target_goal}`}
+                    subtitle="Recursive goal-driven verification with call-stack cycle prevention"
+                    headerAction={
+                      <TelemetryBadge
+                        variant={getProofStatusBadgeVariant(treeStatus)}
+                        size="md"
+                        icon={StatusIcon}
+                      >
+                        {treeStatus}
+                      </TelemetryBadge>
+                    }
+                  >
+                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 font-mono text-xs">
+                      <div className="rounded-md border border-white/[0.08] bg-[#0B0F15] p-3">
+                        <span className="block text-[10px] uppercase text-[#8B96A5]">
+                          Proof Status
+                        </span>
+                        <span className="mt-1 block font-semibold text-[#E8EDF3]">
+                          {treeStatus}
+                        </span>
+                      </div>
+                      <div className="rounded-md border border-white/[0.08] bg-[#0B0F15] p-3">
+                        <span className="block text-[10px] uppercase text-[#8B96A5]">
+                          Cycles Prevented
+                        </span>
+                        <span className="mt-1 block font-semibold text-[#00D9FF]">
+                          {cyclesPrevented.length}
+                        </span>
+                      </div>
+                      <div className="rounded-md border border-white/[0.08] bg-[#0B0F15] p-3">
+                        <span className="block text-[10px] uppercase text-[#8B96A5]">
+                          Missing Leaf Facts
+                        </span>
+                        <span className="mt-1 block font-semibold text-[#FBBF24]">
+                          {missingFacts.length}
+                        </span>
+                      </div>
+                    </div>
+
+                    {cyclesPrevented.length > 0 ? (
+                      <div className="mt-4 rounded-md border border-[#F59E0B]/35 bg-[#1B1508] p-3.5 space-y-1.5">
+                        <div className="flex items-center gap-2 font-mono text-[11px] font-semibold uppercase tracking-wider text-[#FBBF24]">
+                          <ShieldAlert className="h-4 w-4 text-[#F59E0B]" />
+                          <span>Cycles Prevented ({cyclesPrevented.length})</span>
+                        </div>
+                        <ul className="space-y-1 font-mono text-xs text-[#FDE68A]">
+                          {cyclesPrevented.map((c, idx) => (
+                            <li key={idx}>• {c}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    ) : (
+                      <div className="mt-4 flex items-center gap-2 rounded-md border border-white/[0.07] bg-[#0B0F15] px-3.5 py-2.5 font-mono text-[11px] text-[#8B96A5]">
+                        <CheckCircle2 className="h-3.5 w-3.5 text-[#C7FF4A]" />
+                        <span>
+                          0 cycles detected — proof traversal remained strictly
+                          acyclic.
+                        </span>
+                      </div>
+                    )}
+                  </NexusPanel>
+
+                  {/* Recursive Proof Tree Visualization */}
+                  <NexusPanel
+                    code="PROOF_TREE"
+                    title="Recursive Decision & Proof Tree"
+                    subtitle="Inspect goal -> candidate rule -> condition subgoal branches"
+                    padding="md"
+                  >
+                    {rootNodes.length > 0 ? (
+                      <div className="space-y-4">
+                        {rootNodes.map((rootNode, idx) => (
+                          <ProofTreeNode
+                            key={`${rootNode.goal}-${idx}`}
+                            node={rootNode}
+                            depth={0}
+                          />
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="py-6 text-center font-mono text-xs text-[#8B96A5]">
+                        No proof nodes returned.
+                      </p>
+                    )}
+                  </NexusPanel>
+
+                  {/* Missing Facts & Targeted Questions */}
+                  <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                    <NexusPanel
+                      code="MISSING_FACTS"
+                      title={`Missing Observable Facts (${missingFacts.length})`}
+                      padding="md"
+                    >
+                      {missingFacts.length > 0 ? (
+                        <div className="flex flex-wrap gap-2">
+                          {missingFacts.map((mf) => (
+                            <TelemetryBadge key={mf} variant="amber" size="md">
+                              {mf}
+                            </TelemetryBadge>
+                          ))}
+                        </div>
+                      ) : (
+                        <p className="font-mono text-xs text-[#8B96A5]">
+                          No missing facts — all required premises are known in
+                          working memory.
+                        </p>
+                      )}
+                    </NexusPanel>
+
+                    <NexusPanel
+                      code="NEXT_QUERIES"
+                      title={`Suggested Follow-Up Questions (${suggestedQuestions.length})`}
+                      padding="md"
+                    >
+                      {suggestedQuestions.length > 0 ? (
+                        <div className="space-y-2.5">
+                          {suggestedQuestions.map((q, idx) => (
+                            <div
+                              key={`${q.fact_key}-${idx}`}
+                              className="rounded-md border border-white/[0.08] bg-[#0B0F15] p-3 space-y-1.5"
+                            >
+                              <div className="flex flex-wrap items-center justify-between gap-2">
+                                <span className="font-mono text-[11px] font-semibold text-[#00D9FF]">
+                                  {q.fact_key}
+                                </span>
+                                <div className="flex items-center gap-1.5">
+                                  <TelemetryBadge variant="neutral" size="sm">
+                                    {q.input_type || 'boolean'}
+                                  </TelemetryBadge>
+                                  {q.unit ? (
+                                    <TelemetryBadge variant="lime" size="sm">
+                                      {q.unit}
+                                    </TelemetryBadge>
+                                  ) : null}
+                                </div>
+                              </div>
+                              <p className="text-xs leading-relaxed text-[#E8EDF3]">
+                                {q.question_text}
+                              </p>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <p className="font-mono text-xs text-[#8B96A5]">
+                          No additional follow-up questions required.
+                        </p>
+                      )}
+                    </NexusPanel>
+                  </div>
+                </div>
+              );
+            })()
           )}
         </div>
       </div>
-    </div>
+    </PageTransition>
   );
 }
